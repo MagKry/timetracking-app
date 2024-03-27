@@ -5,7 +5,7 @@ from django.views import View
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login, logout
 
-from .forms import LoginForm
+from .forms import LoginForm, AddHoursForm
 
 
 class HomePageView(View):
@@ -29,5 +29,39 @@ class LoginView(FormView):
         else:
             return render(self.request, 'base.html',  {'user': user, 'form': form, 'error_message': 'Błąd logowania'})
 
-    def logout_view(self, request):
+
+class LogoutView(View):
+    def get(self, request):
+        user = request.user
         logout(request)
+        return render(self.request, 'logout_page.html',  {'user': user, 'message': 'logged out successfully.'})
+
+
+class AddHoursView(FormView):
+    form_template = 'add_hours.html'
+    form_class = AddHoursForm
+    success_url = 'view-hours'
+    def get(self, request):
+        return render(request, 'add_hours.html')
+
+
+class ViewOwnHoursView(View):
+    def get(self, request):
+        return render(request, 'view_own_hours.html')
+
+
+class ViewDepartmentHoursView(View):
+    def get(self, request):
+        return render(request, 'department_hours.html')
+
+
+class ViewEmployeesHoursView(View):
+    def get(self, request):
+        return render(request, 'all_employees_hours.html')
+
+
+class AddEmployeeView(View):
+    def get(self, request):
+        return render(request, 'add_employee.html')
+
+

@@ -6,14 +6,24 @@
     <head><meta charset="utf-8">
             <img src="{% static 'logo.png' %}" alt="Fake company logo" align="right">
     </head>
+    <title> {% block title %} Home {% endblock %}</title>
+    {% if user.is_authenticated %}
+    Witaj, {{ user }}!
+    {% endif %}
 
     <body>
         <h1>Timetracker</h1>
         {% block content %}
 
         {% endblock %}
-
-    <button type="submit">Logout</button>
+        {% block footer %}
+        <a href="{% url 'add-hours' %}"><button type="submit">Log hours</button></a><br>
+        <a href="{% url 'view-hours' %}"><button type="submit">View your hours</button></a>
+        <a href="{% url 'department-hours' %}"><button type="submit">View department hours</button></a>
+        <a href="{% url 'employees-hours' %}"><button type="submit">View employees' hours</button></a><br>
+        <a href="{% url 'add-employee' %}"><button type="submit">Add employee</button></a><br>
+        <a href="{% url 'logout-page' %}"><button type="submit">Logout</button></a>
+        {% endblock %}
 
 
     </body>
