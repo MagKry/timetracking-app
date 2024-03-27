@@ -6,6 +6,7 @@ from django.views.generic import FormView
 from django.contrib.auth import authenticate, login, logout
 
 from .forms import LoginForm, AddHoursForm
+from .models import LoggedHours
 
 
 class HomePageView(View):
@@ -38,11 +39,17 @@ class LogoutView(View):
 
 
 class AddHoursView(FormView):
-    form_template = 'add_hours.html'
+    template_name = 'add_hours.html'
     form_class = AddHoursForm
-    success_url = 'view-hours'
-    def get(self, request):
-        return render(request, 'add_hours.html')
+    success_url = reverse_lazy('view-hours')
+    def form_valid(self, form):
+        date = form.cleaned_data['date']
+        sales_channel = form.cleaned_data['sales_channel']
+        hours = form.cleaned_data['hours']
+        user = self.request.user
+        LoggedHours.objects.create(date=date, hour=hours, employee=user, sales_channel=sales_channel)
+        return super().form_valid(form)
+
 
 
 class ViewOwnHoursView(View):

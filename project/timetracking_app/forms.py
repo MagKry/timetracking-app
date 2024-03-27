@@ -3,7 +3,7 @@ from datetime import datetime
 from django import forms
 from django.forms import PasswordInput
 
-SALES_CHANNELS = ['channel_1', 'channel_2', 'channel_3', 'channel_4']
+SALES_CHANNELS = {1: 'channel_1', 2: 'channel_2', 3: 'channel_3', 4: 'channel_4'}
 
 
 class LoginForm(forms.Form):
@@ -12,6 +12,6 @@ class LoginForm(forms.Form):
 
 
 class AddHoursForm(forms.Form):
-    date = forms.DateField(widget=forms.DateInput)
+    date = forms.DateField(widget=forms.SelectDateWidget)
     sales_channel = forms.ChoiceField(choices=SALES_CHANNELS)
     hours = forms.FloatField(min_value=0, max_value=8)

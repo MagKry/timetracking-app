@@ -21,6 +21,7 @@ class SalesChannel(models.Model):
 
 
 class LoggedHours(models.Model):
+    date = models.DateField()
     hour = models.FloatField()
     employee = models.ManyToManyField(Person)
     sales_channel = models.ForeignKey(SalesChannel, on_delete=models.CASCADE)
