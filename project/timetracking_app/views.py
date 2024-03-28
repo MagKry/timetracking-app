@@ -1,12 +1,12 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import FormView
 from django.contrib.auth import authenticate, login, logout
 
 from .forms import LoginForm, AddHoursForm
-from .models import LoggedHours
+from .models import LoggedHours, SalesChannel
 
 
 class HomePageView(View):
@@ -35,7 +35,7 @@ class LogoutView(View):
     def get(self, request):
         user = request.user
         logout(request)
-        return render(self.request, 'logout_page.html',  {'user': user, 'message': 'logged out successfully.'})
+        return render(request, 'logout_page.html',  {'user': user, 'message': 'logged out successfully.'})
 
 
 class AddHoursView(FormView):
@@ -44,9 +44,11 @@ class AddHoursView(FormView):
     success_url = reverse_lazy('view-hours')
     def form_valid(self, form):
         date = form.cleaned_data['date']
-        sales_channel = form.cleaned_data['sales_channel']
+        form_sales_channel = form.cleaned_data['sales_channel']
+        sales_channel = get_object_or_404(SalesChannel, channel_name=form_sales_channel)
         hours = form.cleaned_data['hours']
         user = self.request.user
+
         LoggedHours.objects.create(date=date, hour=hours, employee=user, sales_channel=sales_channel)
         return super().form_valid(form)
 

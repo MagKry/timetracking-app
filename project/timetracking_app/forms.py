@@ -3,7 +3,12 @@ from datetime import datetime
 from django import forms
 from django.forms import PasswordInput
 
-SALES_CHANNELS = {1: 'channel_1', 2: 'channel_2', 3: 'channel_3', 4: 'channel_4'}
+SALES_CHANNELS = (
+    (1, 'channel_1'),
+    (2, 'channel_2'),
+    (3, 'channel_3'),
+    (4, 'channel_4'),
+)
 
 
 class LoginForm(forms.Form):

@@ -1,12 +1,13 @@
+from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 
 # Create your models here.
 
 
-class Person(models.Model):
-    name = models.CharField()
-    email = models.CharField(max_length=64)
+class Person(AbstractUser):
     department = models.ForeignKey('Department', related_name='persons_department', on_delete=models.CASCADE, null=True)
+    sales_channels = models.ManyToManyField('SalesChannel')
+
 
 
 class Department(models.Model):
@@ -16,12 +17,11 @@ class Department(models.Model):
 
 class SalesChannel(models.Model):
     channel_name = models.CharField(max_length=64, unique=True)
-    employee = models.ManyToManyField(Person)
     department = models.ManyToManyField(Department)
 
 
 class LoggedHours(models.Model):
-    date = models.DateField()
+    date = models.DateField(null=True)
     hour = models.FloatField()
     employee = models.ManyToManyField(Person)
     sales_channel = models.ForeignKey(SalesChannel, on_delete=models.CASCADE)
