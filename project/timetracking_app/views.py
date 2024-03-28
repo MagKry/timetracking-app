@@ -24,11 +24,12 @@ class LoginView(FormView):
         password = form.cleaned_data['password']
         user = authenticate(username=username, password=password)
 
+
         if user is not None:
             login(self.request, user)
-            return super().form_valid(form)
+            return render(self.request, 'base.html')
         else:
-            return render(self.request, 'base.html',  {'user': user, 'form': form, 'error_message': 'Błąd logowania'})
+            return render(self.request, self.template_name,  {'user': user, 'form': form, 'error_message': 'Błąd logowania'})
 
 
 class LogoutView(View):
