@@ -1,0 +1,11 @@
+{% extends 'form.html' %}
+{% block title %} Logout {% endblock %}
+
+
+{% block content %}
+    {{ user }} {{ message }} <br>
+{% endblock %}
+
+{% block footer %}
+    <a href="{% url 'login-page' %}"><button type="submit">Login</button></a>
+{% endblock %}
