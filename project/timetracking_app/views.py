@@ -47,10 +47,12 @@ class AddHoursView(FormView):
         date = form.cleaned_data['date']
         form_sales_channel = form.cleaned_data['sales_channel']
         sales_channel = get_object_or_404(SalesChannel, channel_name=form_sales_channel)
-        hours = form.cleaned_data['hours']
+        hour = form.cleaned_data['hour']
         user = self.request.user
 
-        LoggedHours.objects.create(date=date, hour=hours, employee=user, sales_channel=sales_channel)
+        employee_hours = LoggedHours.objects.create(date=date, hour=hour, sales_channel=sales_channel)
+        employee_hours.employee.add(user)
+
         return super().form_valid(form)
 
 
