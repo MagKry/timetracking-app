@@ -3,13 +3,17 @@
 
 <!doctype html>
 <html>
+    {% block head %}
     <head><meta charset="utf-8">
             <img src="{% static 'logo.png' %}" alt="Fake company logo" align="right">
+
+            {% if user.is_authenticated %}
+            Hello, {{ user }}!
+            {% endif %}
     </head>
+    {% endblock %}
+
     <title> {% block title %} Home {% endblock %}</title>
-    {% if user.is_authenticated %}
-    Hello, {{ user }}!
-    {% endif %}
 
     <body>
         <h1>Timetracker</h1>

@@ -59,7 +59,10 @@ class AddHoursView(FormView):
 
 class ViewOwnHoursView(View):
     def get(self, request):
-        return render(request, 'view_own_hours.html')
+        employee = self.request.user
+        employee_entries = LoggedHours.objects.filter(employee=employee)
+
+        return render(request, 'view_own_hours.html', {'employee_entries': employee_entries, 'employee': employee})
 
 
 class ViewDepartmentHoursView(View):

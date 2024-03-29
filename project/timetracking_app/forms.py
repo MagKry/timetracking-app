@@ -22,6 +22,7 @@ class AddHoursForm(forms.ModelForm):
         model = LoggedHours
         fields = ['date', 'sales_channel', 'hour']
         widgets = {'date': forms.DateInput(format=('%Y/%d/%m'), attrs={'placeholder': 'Select a date', 'type': 'date'})}
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['sales_channel'].queryset = SalesChannel.objects.all()

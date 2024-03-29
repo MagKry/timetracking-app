@@ -1,1 +1,16 @@
-View your own hours
+{% extends 'base.html' %}
+{% block title %} Your hours {% endblock %}
+{#{% block head %}{% endblock %}#}
+
+{% block content %}
+   View your own hours
+            <ol>
+    {% for entry in employee_entries %}
+    <li>{{user}}<br> {{ entry.date }} <br>{{ entry.sales_channel }} <br>{{ entry.hour }}</li>
+    {% endfor %}
+            </ol>
+
+
+{% endblock %}
+
+{% block footer %}{% endblock %}
