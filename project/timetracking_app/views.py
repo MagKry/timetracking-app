@@ -1,8 +1,10 @@
+from datetime import datetime, timedelta
+
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import FormView
+from django.views.generic import FormView, ListView
 from django.contrib.auth import authenticate, login, logout
 
 from .forms import LoginForm, AddHoursForm
@@ -59,10 +61,85 @@ class AddHoursView(FormView):
 
 class ViewOwnHoursView(View):
     def get(self, request):
-        employee = self.request.user
-        employee_entries = LoggedHours.objects.filter(employee=employee)
+        return render(request, 'view_own_hours.html')
 
-        return render(request, 'view_own_hours.html', {'employee_entries': employee_entries, 'employee': employee})
+
+class ListAllHoursView(ListView):
+    model = LoggedHours
+    success_url = 'list_all_hours/'
+    template_name = 'list_hours.html'
+    context_object_name = 'employee_entries'
+    paginate_by = 1000
+    ordering = ['-date']
+
+
+class HoursThisWeekView(ListView):
+    model = LoggedHours
+    success_url = 'hours-this-week'
+    template_name = 'list_hours.html'
+    context_object_name = 'employee_entries'
+    ordering = ['-date']
+
+    def get_queryset(self):
+        start_date = datetime.today()
+        end_date = start_date + timedelta(days=6)
+        return LoggedHours.objects.filter(date__gte=start_date, date__lte=end_date)
+
+
+
+# class HoursThisMonthView(ListView):
+#     model = LoggedHours
+#     success_url = 'hours-this-month'
+#     template_name = 'list_hours.html'
+#     context_object_name = 'employee_entries'
+#     ordering = ['-date']
+#
+#     def get_queryset(self):
+#         start_date = datetime.today()
+#         end_date = start_date + timedelta(days=30)
+#         return LoggedHours.objects.filter(date__gte=start_date, date__lte=end_date)
+
+class HoursThisMonthView(ListView):
+    model = LoggedHours
+    success_url = 'hours-this-month'
+    template_name = 'list_hours.html'
+    context_object_name = 'employee_entries'
+    ordering = ['-date']
+
+    def get_queryset(self):
+        current_month = datetime.now().replace(day=1).strftime('%Y-%m-%d')
+        return LoggedHours.objects.filter(date__gte=current_month)
+
+class HoursThisYearView(ListView):
+    model = LoggedHours
+    success_url = 'hours-this-year'
+    template_name = 'list_hours.html'
+    context_object_name = 'employee_entries'
+    ordering = ['-date']
+
+    def get_queryset(self):
+        current_year = datetime.now().replace(day=1, month=1).strftime('%Y-%m-%d')
+        return LoggedHours.objects.filter(date__gte=current_year)
+
+
+    # def hours_per_channel(self, request, employee, employee_entries):
+    #
+    #     hours_per_channel = {}
+    #     for entry in employee_entries:
+    #         sales_channel = entry.sales_channel
+    #         hours = entry.hour
+    #         if sales_channel in hours_per_channel:
+    #             hours_per_channel[sales_channel] += hours
+    #         else:
+    #             hours_per_channel[sales_channel] = hours
+    #
+    #
+    #     return hours_per_channel
+    #
+
+
+
+
 
 
 class ViewDepartmentHoursView(View):

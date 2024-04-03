@@ -3,12 +3,12 @@
 {#{% block head %}{% endblock %}#}
 
 {% block content %}
-   View your own hours
-            <ol>
-    {% for entry in employee_entries %}
-    <li>{{user}}<br> {{ entry.date }} <br>{{ entry.sales_channel }} <br>{{ entry.hour }}</li>
-    {% endfor %}
-            </ol>
+   View your own hours: <br>
+    <a href="{% url 'list-all-hours' %}"> <button type="submit" value="all_hours">All hours</button> </a>
+    <a href="{% url 'hours-this-week' %}"> <button type="submit" value="current_week">Current week</button></a>
+    <a href="{% url 'hours-this-month' %}"><button type="submit" value="current_month">Current month</button></a>
+    <a href="{% url 'hours-this-year' %}"><button type="submit" value="current_year">Current year</button></a>
+
 
 
 {% endblock %}
