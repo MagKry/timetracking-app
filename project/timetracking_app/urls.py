@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import HomePageView, LoginView, AddHoursView, ViewOwnHoursView, ViewDepartmentHoursView, \
-    ViewEmployeesHoursView, \
-    AddEmployeeView, LogoutView, ListAllHoursView, HoursThisWeekView, HoursThisMonthView, HoursThisYearView
+from .views import (HomePageView, LoginView, AddHoursView, ViewOwnHoursView, ViewDepartmentHoursView, \
+    ViewEmployeesHoursView, AddEmployeeView, LogoutView, ListAllHoursView, HoursThisWeekView, HoursThisMonthView,
+    HoursThisYearView, DeleteHoursView)
 
 urlpatterns = [
     path('home/', HomePageView.as_view(), name='home-page'),
@@ -33,4 +33,5 @@ urlpatterns = [
     path('department_hours/', ViewDepartmentHoursView.as_view(), name='department-hours'),
     path('employees_hours/', ViewEmployeesHoursView.as_view(), name='employees-hours'),
     path('add_employee/', AddEmployeeView.as_view(), name='add-employee'),
+    path('delete_hours/<int:pk>/', DeleteHoursView.as_view(), name='delete-hours'),
 ]
