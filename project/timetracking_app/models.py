@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User, AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 # Create your models here.
@@ -33,7 +34,7 @@ class SalesChannel(models.Model):
 
 class LoggedHours(models.Model):
     date = models.DateField(null=True)
-    hour = models.FloatField()
+    hour = models.FloatField(validators=(MinValueValidator(0.25), MaxValueValidator(8)))
     employee = models.ManyToManyField(Person)
     sales_channel = models.ForeignKey(SalesChannel, on_delete=models.CASCADE)
 

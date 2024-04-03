@@ -1,1 +1,16 @@
-View your own hours
+{% extends 'base.html' %}
+{% block title %} Your hours {% endblock %}
+{#{% block head %}{% endblock %}#}
+
+{% block content %}
+   View your own hours: <br>
+    <a href="{% url 'list-all-hours' %}"> <button type="submit" value="all_hours">All hours</button> </a>
+    <a href="{% url 'hours-this-week' %}"> <button type="submit" value="current_week">Current week</button></a>
+    <a href="{% url 'hours-this-month' %}"><button type="submit" value="current_month">Current month</button></a>
+    <a href="{% url 'hours-this-year' %}"><button type="submit" value="current_year">Current year</button></a>
+
+
+
+{% endblock %}
+
+{% block footer %}{% endblock %}

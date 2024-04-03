@@ -16,8 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import HomePageView, LoginView, AddHoursView, ViewOwnHoursView, ViewDepartmentHoursView, ViewEmployeesHoursView, \
-    AddEmployeeView, LogoutView
+from .views import HomePageView, LoginView, AddHoursView, ViewOwnHoursView, ViewDepartmentHoursView, \
+    ViewEmployeesHoursView, \
+    AddEmployeeView, LogoutView, ListAllHoursView, HoursThisWeekView, HoursThisMonthView, HoursThisYearView
 
 urlpatterns = [
     path('home/', HomePageView.as_view(), name='home-page'),
@@ -25,6 +26,10 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout-page'),
     path('add_hours/', AddHoursView.as_view(), name='add-hours'),
     path('view_hours/', ViewOwnHoursView.as_view(), name='view-hours'),
+    path('list_all_hours/', ListAllHoursView.as_view(), name='list-all-hours'),
+    path('hours_this_week/', HoursThisWeekView.as_view(), name='hours-this-week'),
+    path('hours_this_month/', HoursThisMonthView.as_view(), name='hours-this-month'),
+    path('hours_this_year/', HoursThisYearView.as_view(), name='hours-this-year'),
     path('department_hours/', ViewDepartmentHoursView.as_view(), name='department-hours'),
     path('employees_hours/', ViewEmployeesHoursView.as_view(), name='employees-hours'),
     path('add_employee/', AddEmployeeView.as_view(), name='add-employee'),
