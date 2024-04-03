@@ -5,20 +5,36 @@
 {% block content %}
    View your own hours: <br>
 
-        <ol>
+        <table>
+        <tr>
+        <th> Date </th>
+        <th> Sales channel </th>
+        <th> Hours </th>
+        </tr>
+
     {% for entry in employee_entries %}
-    <li>{{ entry.date }} | {{ entry.sales_channel }} | {{ entry.hour }}</li>
+
+        <tr>
+       <td> {{ entry.date }} </td>
+        <td>{{ entry.sales_channel }} </td>
+       <td> {{ entry.hour }}
+           <a href="{% url 'delete-hours' pk=entry.id %}"> <button type="submit" value="all_hours">Delete</button> </a></td>
+
+        </tr>
     {% endfor %}
-        </ol>
+
+        </table>
 
 ----------------------------------
-<ol>
-  {% for sales_channel, hours in hours_per_channel.items %}
-  <li>{{ sales_channel }}: {{ hours }}</li>
-  {% endfor %}
-</ol>
+<table>
+      {% for sales_channel, hours in hours_per_channel.items %}
+          <tr>
+          <th> Sales channel </th>
+         <td>{{ sales_channel }}: {{ hours }}</td>
+          </tr>
+      {% endfor %}
+</table>
 
-    </form>
 
 {% endblock %}
 

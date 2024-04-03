@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import FormView, ListView
+from django.views.generic import FormView, ListView, DeleteView
 from django.contrib.auth import authenticate, login, logout
 
 from .forms import LoginForm, AddHoursForm
@@ -70,7 +70,22 @@ class ListAllHoursView(ListView):
     template_name = 'list_hours.html'
     context_object_name = 'employee_entries'
     paginate_by = 1000
-    ordering = ['-date']
+    ordering = ['sales_channel']
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        employee_entries = LoggedHours.objects.filter(employee=self.request.user)
+        hours_per_channel = {}
+        for entry in employee_entries:
+            sales_channel = entry.sales_channel
+            hours = entry.hour
+            if sales_channel in hours_per_channel:
+                hours_per_channel[sales_channel] += hours
+            else:
+                hours_per_channel[sales_channel] = hours
+        context['hours_per_channel'] = hours_per_channel
+        return context
 
 
 class HoursThisWeekView(ListView):
@@ -85,19 +100,20 @@ class HoursThisWeekView(ListView):
         end_date = start_date + timedelta(days=6)
         return LoggedHours.objects.filter(date__gte=start_date, date__lte=end_date)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        employee_entries = self.get_queryset()
+        hours_per_channel = {}
+        for entry in employee_entries:
+            sales_channel = entry.sales_channel
+            hours = entry.hour
+            if sales_channel in hours_per_channel:
+                hours_per_channel[sales_channel] += hours
+            else:
+                hours_per_channel[sales_channel] = hours
+        context['hours_per_channel'] = hours_per_channel
+        return context
 
-
-# class HoursThisMonthView(ListView):
-#     model = LoggedHours
-#     success_url = 'hours-this-month'
-#     template_name = 'list_hours.html'
-#     context_object_name = 'employee_entries'
-#     ordering = ['-date']
-#
-#     def get_queryset(self):
-#         start_date = datetime.today()
-#         end_date = start_date + timedelta(days=30)
-#         return LoggedHours.objects.filter(date__gte=start_date, date__lte=end_date)
 
 class HoursThisMonthView(ListView):
     model = LoggedHours
@@ -110,6 +126,21 @@ class HoursThisMonthView(ListView):
         current_month = datetime.now().replace(day=1).strftime('%Y-%m-%d')
         return LoggedHours.objects.filter(date__gte=current_month)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        employee_entries = self.get_queryset()
+        hours_per_channel = {}
+        for entry in employee_entries:
+            sales_channel = entry.sales_channel
+            hours = entry.hour
+            if sales_channel in hours_per_channel:
+                hours_per_channel[sales_channel] += hours
+            else:
+                hours_per_channel[sales_channel] = hours
+        context['hours_per_channel'] = hours_per_channel
+        return context
+
+
 class HoursThisYearView(ListView):
     model = LoggedHours
     success_url = 'hours-this-year'
@@ -121,24 +152,19 @@ class HoursThisYearView(ListView):
         current_year = datetime.now().replace(day=1, month=1).strftime('%Y-%m-%d')
         return LoggedHours.objects.filter(date__gte=current_year)
 
-
-    # def hours_per_channel(self, request, employee, employee_entries):
-    #
-    #     hours_per_channel = {}
-    #     for entry in employee_entries:
-    #         sales_channel = entry.sales_channel
-    #         hours = entry.hour
-    #         if sales_channel in hours_per_channel:
-    #             hours_per_channel[sales_channel] += hours
-    #         else:
-    #             hours_per_channel[sales_channel] = hours
-    #
-    #
-    #     return hours_per_channel
-    #
-
-
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        employee_entries = self.get_queryset()
+        hours_per_channel = {}
+        for entry in employee_entries:
+            sales_channel = entry.sales_channel
+            hours = entry.hour
+            if sales_channel in hours_per_channel:
+                hours_per_channel[sales_channel] += hours
+            else:
+                hours_per_channel[sales_channel] = hours
+        context['hours_per_channel'] = hours_per_channel
+        return context
 
 
 
@@ -157,3 +183,7 @@ class AddEmployeeView(View):
         return render(request, 'add_employee.html')
 
 
+class DeleteHoursView(DeleteView):
+    model = LoggedHours
+    success_url = reverse_lazy('list-all-hours')
+    template_name ='loggedhours_confirm_delete.html'
