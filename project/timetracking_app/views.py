@@ -4,11 +4,11 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import FormView, ListView, DeleteView, UpdateView
+from django.views.generic import FormView, ListView, DeleteView, UpdateView, CreateView
 from django.contrib.auth import authenticate, login, logout
 
 from .forms import LoginForm, AddHoursForm
-from .models import LoggedHours, SalesChannel
+from .models import LoggedHours, SalesChannel, Person
 
 
 class HomePageView(View):
@@ -181,9 +181,12 @@ class ViewEmployeesHoursView(View):
         return render(request, 'all_employees_hours.html')
 
 
-class AddEmployeeView(View):
-    def get(self, request):
-        return render(request, 'add_employee.html')
+class AddEmployeeView(CreateView):
+    model = Person
+    fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
+    template_name = 'add_employee.html'
+    success_url = reverse_lazy('employees-hours')
+
 
 
 class DeleteHoursView(DeleteView):

@@ -13,7 +13,7 @@
     </head>
     {% endblock %}
 
-    <title> {% block title %} Home {% endblock %}</title>
+    <title> {% block title %} - {% endblock %}</title>
 
     <body>
         <h1>Timetracker</h1>
@@ -21,11 +21,19 @@
 
         {% endblock %}
         {% block footer %}
+            <strong> Log hours </strong>
         <a href="{% url 'add-hours' %}"><button type="submit">Log hours</button></a><br>
+            <br>
+            <strong> View hours </strong>
+
         <a href="{% url 'view-hours' %}"><button type="submit">View your hours</button></a>
         <a href="{% url 'department-hours' %}"><button type="submit">View department hours</button></a>
         <a href="{% url 'employees-hours' %}"><button type="submit">View employees' hours</button></a><br>
+            <br>
+            <strong> Manage users </strong>
+
         <a href="{% url 'add-employee' %}"><button type="submit">Add employee</button></a><br>
+            <br>
         <a href="{% url 'logout-page' %}"><button type="submit">Logout</button></a>
 
             {{ user }}

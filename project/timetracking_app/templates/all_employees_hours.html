@@ -1,1 +1,9 @@
-all employees' hours
+{% extends 'base.html' %}
+{% block title %} All emploees hours{% endblock %}
+{% block content %}
+    {% for person in persons %}
+    {{ peron.first_name }} {{ person.last_name }}
+    {% endfor %}
+{% endblock %}
+
+{% block footer %} {% endblock %}
