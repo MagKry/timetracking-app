@@ -19,7 +19,9 @@
        <td> {{ entry.date }} </td>
         <td>{{ entry.sales_channel }} </td>
        <td> {{ entry.hour }}
-           <a href="{% url 'delete-hours' pk=entry.id %}"> <button type="submit" value="all_hours">Delete</button> </a></td>
+           <a href="{% url 'edit-hours' pk=entry.id %}"> <button type="submit" value="edit_hours">Edit</button> </a>
+           <a href="{% url 'delete-hours' pk=entry.id %}"> <button type="submit" value="delete_hours">Delete</button> </a></td>
+
 
         </tr>
     {% endfor %}

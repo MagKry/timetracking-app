@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import FormView, ListView, DeleteView
+from django.views.generic import FormView, ListView, DeleteView, UpdateView
 from django.contrib.auth import authenticate, login, logout
 
 from .forms import LoginForm, AddHoursForm
@@ -190,3 +190,10 @@ class DeleteHoursView(DeleteView):
     model = LoggedHours
     success_url = reverse_lazy('list-all-hours')
     template_name ='loggedhours_confirm_delete.html'
+
+
+class EditHoursView(UpdateView):
+    model = LoggedHours
+    fields = ['date', 'hour', 'sales_channel']
+    template_name = 'loggedhours_update_form.html'
+    success_url = reverse_lazy('list-all-hours')
