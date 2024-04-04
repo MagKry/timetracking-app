@@ -2,7 +2,6 @@
 {% block title %} All employees hours{% endblock %}
 {% block content %}
 
-    {{ employee }}
 
     <table>
         <tr>
@@ -17,7 +16,7 @@
         {% for entry in hours %}
 
         <tr>
-        <td>{{ employee }}</td>
+       <td>{{ employee }}</td>
        <td> {{ entry.date }} </td>
        <td> {{ entry.sales_channel }} </td>
        <td> {{ entry.hour }}

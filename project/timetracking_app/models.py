@@ -37,6 +37,7 @@ class LoggedHours(models.Model):
     hour = models.FloatField(validators=(MinValueValidator(0.25), MaxValueValidator(8)))
     employee = models.ManyToManyField(Person)
     sales_channel = models.ForeignKey(SalesChannel, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.date, self.hour, self.employee, self.sales_channel

@@ -10,14 +10,16 @@
         <tr>
         <th> Date </th>
         <th> Sales channel </th>
+        <th> Department </th>
         <th> Hours </th>
         </tr>
 
     {% for entry in employee_entries %}
 
         <tr>
-       <td> {{ entry.date }} </td>
+        <td>{{ entry.date }} </td>
         <td>{{ entry.sales_channel }} </td>
+        <td>{{ entry.department}}</td>
        <td> {{ entry.hour }}
            <a href="{% url 'edit-hours' pk=entry.id %}"> <button type="submit" value="edit_hours">Edit</button> </a>
            <a href="{% url 'delete-hours' pk=entry.id %}"> <button type="submit" value="delete_hours">Delete</button> </a></td>

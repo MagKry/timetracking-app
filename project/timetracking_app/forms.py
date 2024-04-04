@@ -28,7 +28,7 @@ class LoginForm(forms.Form):
 class AddHoursForm(forms.ModelForm):
     class Meta:
         model = LoggedHours
-        fields = ['date', 'sales_channel', 'hour']
+        fields = ['date', 'sales_channel', 'department', 'hour']
         widgets = {'date': forms.DateInput(format=('%Y/%d/%m'), attrs={'placeholder': 'Select a date', 'type': 'date'})}
 
     def __init__(self, *args, **kwargs):

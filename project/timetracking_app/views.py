@@ -170,10 +170,34 @@ class HoursThisYearView(ListView):
         return context
 
 
+class ViewDepartmentHoursView(ListView):
+    model = LoggedHours
+    fields = '__all__'
+    template_name = 'department_hours.html'
+    context_object_name = 'logged_hours'
 
-class ViewDepartmentHoursView(View):
-    def get(self, request):
-        return render(request, 'department_hours.html')
+    def get_queryset(self):
+        return LoggedHours.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        logged_hours = self.get_queryset()
+
+        hours_per_department = {}
+        for entry in logged_hours:
+            department = entry.department
+            hours = entry.hour
+            sales_channel = entry.sales_channel
+            if department in hours_per_department:
+                if sales_channel in hours_per_department[department]:
+                    hours_per_department[department][sales_channel] += hours
+                else:
+                    hours_per_department[department][sales_channel] = hours
+            else:
+                hours_per_department[department] = {sales_channel:hours}
+        context['hours_per_department'] = hours_per_department
+        return context
+
 
 
 class ViewEmployeesHoursView(ListView):
@@ -208,7 +232,7 @@ class DeleteHoursView(DeleteView):
 
 class EditHoursView(UpdateView):
     model = LoggedHours
-    fields = ['date', 'hour', 'sales_channel']
+    fields = ['date', 'hour', 'sales_channel', 'department']
     template_name = 'loggedhours_update_form.html'
     success_url = reverse_lazy('list-all-hours')
 
