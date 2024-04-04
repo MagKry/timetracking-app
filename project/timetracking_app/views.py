@@ -69,8 +69,11 @@ class ListAllHoursView(ListView):
     success_url = 'list_all_hours/'
     template_name = 'list_hours.html'
     context_object_name = 'employee_entries'
-    paginate_by = 1000
+    paginate_by = 10
     ordering = ['sales_channel']
+
+    def get_queryset(self):
+        return LoggedHours.objects.all()
 
 
     def get_context_data(self, **kwargs):

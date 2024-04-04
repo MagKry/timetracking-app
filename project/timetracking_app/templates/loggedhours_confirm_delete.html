@@ -1,5 +1,6 @@
 <form action="" method="post">
   {% csrf_token %}
   {{ form.as_p }}
-  <input type="submit" value="The hours will be deleted. Please confirm.">
+    Please confirm deletion of data. This action is irreversible.
+  <input type="submit" value="OK">
 </form>
