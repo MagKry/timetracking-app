@@ -176,9 +176,21 @@ class ViewDepartmentHoursView(View):
         return render(request, 'department_hours.html')
 
 
-class ViewEmployeesHoursView(View):
-    def get(self, request):
-        return render(request, 'all_employees_hours.html')
+class ViewEmployeesHoursView(ListView):
+    model = LoggedHours
+    fields = '__all__'
+    template_name = 'all_employees_hours.html'
+    success_url = 'employees_hours/'
+    context_object_name = 'employee_entries'
+    ordering = ['employee']
+
+    def get_queryset(self):
+        employees = Person.objects.all()
+        # Tworzymy słownik, w którym kluczem jest pracownik, a wartością jest lista jego godzin
+        all_hours = {}
+        for employee in employees:
+            all_hours[employee] = LoggedHours.objects.filter(employee=employee)
+        return all_hours.items()
 
 
 class AddEmployeeView(CreateView):
@@ -186,7 +198,6 @@ class AddEmployeeView(CreateView):
     fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
     template_name = 'add_employee.html'
     success_url = reverse_lazy('employees-hours')
-
 
 
 class DeleteHoursView(DeleteView):
@@ -200,3 +211,10 @@ class EditHoursView(UpdateView):
     fields = ['date', 'hour', 'sales_channel']
     template_name = 'loggedhours_update_form.html'
     success_url = reverse_lazy('list-all-hours')
+
+
+class EditEmployeeView(UpdateView): #brakuje przycisku umożliwiającego edycję
+    model = Person
+    fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
+    template_name = 'person_update_form.html'
+    success_url = reverse_lazy('employees-hours')

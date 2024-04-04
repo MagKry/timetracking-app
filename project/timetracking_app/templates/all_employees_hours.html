@@ -1,9 +1,33 @@
-{% extends 'base.html' %}
-{% block title %} All emploees hours{% endblock %}
+{% extends 'list_hours.html' %}
+{% block title %} All employees hours{% endblock %}
 {% block content %}
-    {% for person in persons %}
-    {{ peron.first_name }} {{ person.last_name }}
+
+    {{ employee }}
+
+    <table>
+        <tr>
+        <th>Person</th>
+        <th> Date </th>
+        <th> Sales channel </th>
+        <th> Hours </th>
+            <th> ---</th>
+        </tr>
+            {% for employee, hours in employee_entries %}
+
+        {% for entry in hours %}
+
+        <tr>
+        <td>{{ employee }}</td>
+       <td> {{ entry.date }} </td>
+       <td> {{ entry.sales_channel }} </td>
+       <td> {{ entry.hour }}
+
+        </tr>
     {% endfor %}
+{% endfor %}
+
+        </table>
+
 {% endblock %}
 
 {% block footer %} {% endblock %}
