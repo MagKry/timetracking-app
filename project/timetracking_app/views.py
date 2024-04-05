@@ -75,7 +75,6 @@ class ListAllHoursView(ListView):
     def get_queryset(self):
         return LoggedHours.objects.all()
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         employee_entries = LoggedHours.objects.filter(employee=self.request.user)
@@ -88,7 +87,15 @@ class ListAllHoursView(ListView):
             else:
                 hours_per_channel[sales_channel] = hours
         context['hours_per_channel'] = hours_per_channel
+        labels_data = self.get_labels_data(self.request)
+        context.update(labels_data)
         return context
+
+    def get_labels_data(self, request):
+        logged_hours = LoggedHours.objects.filter(employee=request.user)
+        labels = [entry.sales_channel.channel_name for entry in logged_hours]
+        data = [entry.hour for entry in logged_hours]
+        return {'labels': labels, 'data': data}
 
 
 class HoursThisWeekView(ListView):
@@ -197,8 +204,6 @@ class ViewDepartmentHoursView(ListView):
                 hours_per_department[department] = {sales_channel:hours}
         context['hours_per_department'] = hours_per_department
         return context
-
-
 
 class ViewEmployeesHoursView(ListView):
     model = LoggedHours
