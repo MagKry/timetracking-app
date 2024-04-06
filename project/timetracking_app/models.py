@@ -15,7 +15,6 @@ class Person(AbstractUser):
         return f"{self.username}"
 
 
-
 class Department(models.Model):
     department_name = models.CharField(max_length=64, unique=True)
     manager = models.ForeignKey(Person, related_name='department_manager', on_delete=models.CASCADE)

@@ -20,7 +20,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--sq@+xx2ryhff3p35p0#&_pep=j)lyiu*ve@=7g(0#0wi5io1c'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -75,16 +74,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'timetracker_db',
-        'HOST': 'localhost',
-        'PASSWORD': 'coderslab',
-        'USER': 'postgres',
-        'PORT': 5432
-    }
-}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -133,17 +123,17 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# try:
-#     from project.local_settings import DATABASES
-# except ModuleNotFoundError:
-#     print("Database configuration in local_settings.py is missing!")
-#     print("Fill the data and try again!")
-#     exit(0)
+try:
+    from project.local_settings import DATABASES
+except ModuleNotFoundError:
+    print("Database configuration in local_settings.py is missing!")
+    print("Fill the data and try again!")
+    exit(0)
 
 
-# try:
-#     from project.local_settings import SECRET_KEY
-# except ModuleNotFoundError:
-#     print("Secretkey in local_settings.py is missing!")
-#     print("Fill the data and try again!")
-#     exit(0)
+try:
+    from project.local_settings import SECRET_KEY
+except ModuleNotFoundError:
+    print("Secretkey in local_settings.py is missing!")
+    print("Fill the data and try again!")
+    exit(0)

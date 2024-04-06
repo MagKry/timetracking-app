@@ -10,7 +10,7 @@
 
 
             {% if user.is_authenticated %}
-            Hello, {{ user }}!
+            Hello, {{ user.username }}!
             {% endif %}
     </head>
     {% endblock %}

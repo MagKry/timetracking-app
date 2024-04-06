@@ -1,14 +1,15 @@
 from datetime import datetime, timedelta
 
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import FormView, ListView, DeleteView, UpdateView, CreateView
 from django.contrib.auth import authenticate, login, logout
 
-from .forms import LoginForm, AddHoursForm
-from .models import LoggedHours, SalesChannel, Person
+from .forms import AddHoursForm, LoginForm
+from .models import LoggedHours, SalesChannel, Person, Department
 
 
 class HomePageView(View):
@@ -19,19 +20,18 @@ class HomePageView(View):
 class LoginView(FormView):
     template_name = 'login_form.html'
     form_class = LoginForm
-    success_url = 'home-page'
+    success_url = reverse_lazy('home-page')
 
     def form_valid(self, form):
         username = form.cleaned_data['login']
         password = form.cleaned_data['password']
         user = authenticate(username=username, password=password)
 
-
         if user is not None:
             login(self.request, user)
-            return render(self.request, 'base.html')
+            return redirect(self.get_success_url())
         else:
-            return render(self.request, self.template_name,  {'user': user, 'form': form, 'error_message': 'Błąd logowania'})
+            return render(self.request, self.template_name,  {'user': user, 'form': form, 'error_message': 'Login error.'})
 
 
 class LogoutView(View):
@@ -45,18 +45,20 @@ class AddHoursView(FormView):
     template_name = 'add_hours.html'
     form_class = AddHoursForm
     success_url = reverse_lazy('view-hours')
+
     def form_valid(self, form):
         date = form.cleaned_data['date']
         form_sales_channel = form.cleaned_data['sales_channel']
+        form_department = form.cleaned_data['department']
         sales_channel = get_object_or_404(SalesChannel, channel_name=form_sales_channel)
+        department = get_object_or_404(Department, department_name=form_department)
         hour = form.cleaned_data['hour']
         user = self.request.user
 
-        employee_hours = LoggedHours.objects.create(date=date, hour=hour, sales_channel=sales_channel)
+        employee_hours = LoggedHours.objects.create(date=date, hour=hour, sales_channel=sales_channel, department=department)
         employee_hours.employee.add(user)
 
         return super().form_valid(form)
-
 
 
 class ViewOwnHoursView(View):
@@ -87,12 +89,12 @@ class ListAllHoursView(ListView):
             else:
                 hours_per_channel[sales_channel] = hours
         context['hours_per_channel'] = hours_per_channel
-        labels_data = self.get_labels_data(self.request)
+        labels_data = self.get_labels_data(self.request.user)
         context.update(labels_data)
         return context
 
-    def get_labels_data(self, request):
-        logged_hours = LoggedHours.objects.filter(employee=request.user)
+    def get_labels_data(self, user):
+        logged_hours = LoggedHours.objects.filter(employee=user)
         labels = [entry.sales_channel.channel_name for entry in logged_hours]
         data = [entry.hour for entry in logged_hours]
         return {'labels': labels, 'data': data}
@@ -189,7 +191,6 @@ class ViewDepartmentHoursView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         logged_hours = self.get_queryset()
-
         hours_per_department = {}
         for entry in logged_hours:
             department = entry.department
@@ -204,6 +205,7 @@ class ViewDepartmentHoursView(ListView):
                 hours_per_department[department] = {sales_channel:hours}
         context['hours_per_department'] = hours_per_department
         return context
+
 
 class ViewEmployeesHoursView(ListView):
     model = LoggedHours
@@ -227,6 +229,20 @@ class AddEmployeeView(CreateView):
     fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
     template_name = 'add_employee.html'
     success_url = reverse_lazy('employees-hours')
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        first_name = form.cleaned_data['first_name']
+        last_name = form.cleaned_data['last_name']
+        email = form.cleaned_data['email']
+        password = form.cleaned_data['password']
+        department = form.cleaned_data['department']
+
+        user = Person.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name,department=department)
+        user.set_password(password)
+
+        return HttpResponse(f'User {user} successfully added.')
+
 
 
 class DeleteHoursView(DeleteView):
