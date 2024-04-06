@@ -181,8 +181,14 @@ class HoursPerChannelView(ListView):
 
     def get_labels_data(self, user):
         logged_hours = LoggedHours.objects.filter(employee=user)
-        labels = [entry.sales_channel.channel_name for entry in logged_hours]
-        data = [entry.hour for entry in logged_hours]
+        labels = []
+        data = []
+        for entry in logged_hours:
+            sales_channel = entry.sales_channel.channel_name
+            if sales_channel not in labels:
+                labels.append(sales_channel)
+                hours = sum(entry.hour for entry in logged_hours if entry.sales_channel.channel_name == sales_channel)
+                data.append(hours)
         return {'labels': labels, 'data': data}
 
 
