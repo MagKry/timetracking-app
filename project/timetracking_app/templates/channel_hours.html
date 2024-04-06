@@ -14,15 +14,22 @@
           </tr>
       {% endfor %}
 </table>
---------------------------
+    --------------------------
+<p>
+    <a href="{% url 'hours-per-channel' %}"> <button type="submit" value="all_hours">All hours</button> </a>
+    <a href="{% url 'hours-per-channel' %}?filter_type=weekly"> <button type="submit" name='weekly' value="current_week">Current week</button></a>
+    <a href="{% url 'hours-per-channel' %}?filter_type=monthly"><button type="submit" name='monthly' value="current_month">Current month</button></a>
+    <a href="{% url 'hours-per-channel' %}?filter_type=yearly"><button type="submit" name='yearly' value="current_year">Current year</button></a>
+</p>
+    --------------------------
 <div>
-    <canvas id="myChart"></canvas>
+    <canvas id="myChartChannels"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-  const ctx = document.getElementById('myChart');
+  const ctx = document.getElementById('myChartChannels');
 
   new Chart(ctx, {
     type: 'bar',

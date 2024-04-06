@@ -7,12 +7,13 @@
 {% if employee_entries %}
  <br>
 
-        <table>
+        <table border="1">
         <tr>
         <th> Date </th>
         <th> Sales channel </th>
         <th> Department </th>
         <th> Hours </th>
+            <th></th>
         </tr>
 
     {% for entry in employee_entries %}
@@ -21,7 +22,8 @@
         <td>{{ entry.date }} </td>
         <td>{{ entry.sales_channel }} </td>
         <td>{{ entry.department}}</td>
-       <td> {{ entry.hour }}
+       <td> {{ entry.hour }}</td>
+            <td>
            <a href="{% url 'edit-hours' pk=entry.id %}"> <button type="submit" value="edit_hours">Edit</button> </a>
            <a href="{% url 'delete-hours' pk=entry.id %}"> <button type="submit" value="delete_hours">Delete</button> </a></td>
 

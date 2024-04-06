@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.contrib.auth.views import LoginView
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -10,6 +10,34 @@ from django.contrib.auth import authenticate, login, logout
 
 from .forms import AddHoursForm, LoginForm
 from .models import LoggedHours, SalesChannel, Person, Department
+
+
+class DateFilterView(View):
+    def set_up_query_strings(self, *args, **kwargs):
+        query_params = QueryDict(mutable=True)
+        # Dodawanie parametrów
+        query_params['filter_type'] = 'value'
+
+        # Przekierowanie na nową stronę z query stringiem
+        redirect_url = '/channel_hours/?' + query_params.urlencode()
+        return redirect_url
+
+    def filter_by_dates_range(self, filter_type):
+
+        if filter_type == 'weekly':
+            all_entries = LoggedHours.objects.filter(date__gte=datetime.today(),
+                                                     date__lte=datetime.today() + timedelta(days=6))
+            return all_entries
+        elif filter_type == 'monthly':
+            all_entries = LoggedHours.objects.filter(date__gte=datetime.now().replace(day=1).strftime('%Y-%m-%d'))
+            return all_entries
+        elif filter_type == 'yearly':
+            all_entries = LoggedHours.objects.filter(
+                date__gte=datetime.now().replace(day=1, month=1).strftime('%Y-%m-%d'))
+            return all_entries
+        else:
+            all_entries = LoggedHours.objects.all()
+            return all_entries
 
 
 class HomePageView(View):
@@ -157,7 +185,7 @@ class HoursThisYearView(ListView):
         return context
 
 
-class HoursPerChannelView(ListView):
+class HoursPerChannelView(ListView, DateFilterView):
     model = LoggedHours
     fields = '__all__'
     template_name = 'channel_hours.html'
@@ -165,9 +193,13 @@ class HoursPerChannelView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        employee_entries = LoggedHours.objects.filter(employee=self.request.user)
+        filter_type = self.request.GET.get('filter_type')
+        all_entries = self.filter_by_dates_range(filter_type)
+
+        context['filter_type'] = filter_type
+
         hours_per_channel = {}
-        for entry in employee_entries:
+        for entry in all_entries:
             sales_channel = entry.sales_channel
             hours = entry.hour
             if sales_channel in hours_per_channel:
@@ -175,12 +207,18 @@ class HoursPerChannelView(ListView):
             else:
                 hours_per_channel[sales_channel] = hours
         context['hours_per_channel'] = hours_per_channel
-        labels_data = self.get_labels_data(self.request.user)
+        labels_data = self.get_labels_data()
         context.update(labels_data)
+
+        context['weekly'] = self.set_up_query_strings('weekly')
+        context['monthly_url'] = self.set_up_query_strings('monthly')
+        context['yearly_url'] = self.set_up_query_strings('yearly')
+
         return context
 
-    def get_labels_data(self, user):
-        logged_hours = LoggedHours.objects.filter(employee=user)
+    def get_labels_data(self):
+        filter_type = self.request.GET.get('filter_type')
+        logged_hours = self.filter_by_dates_range(filter_type)
         labels = []
         data = []
         for entry in logged_hours:
@@ -192,15 +230,15 @@ class HoursPerChannelView(ListView):
         return {'labels': labels, 'data': data}
 
 
-
-class ViewDepartmentHoursView(ListView):
+class ViewDepartmentHoursView(ListView, DateFilterView):
     model = LoggedHours
     fields = '__all__'
     template_name = 'department_hours.html'
     context_object_name = 'logged_hours'
 
     def get_queryset(self):
-        return LoggedHours.objects.all()
+        filter_type = self.request.GET.get('filter_type')
+        return self.filter_by_dates_range(filter_type)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -218,7 +256,30 @@ class ViewDepartmentHoursView(ListView):
             else:
                 hours_per_department[department] = {sales_channel:hours}
         context['hours_per_department'] = hours_per_department
+
+        labels_data = self.get_labels_data(self.request.user)
+        context.update(labels_data)
+
         return context
+
+    def get_labels_data(self, user):
+        logged_hours = self.get_queryset()
+        labels = []
+        data = []
+        hours_per_department = {}
+        for entry in logged_hours:
+            department = entry.department.department_name
+            if department not in hours_per_department:
+                hours_per_department[department] = entry.hour
+            else:
+                hours_per_department[department] += entry.hour
+
+        # Konwersja słownika na listy etykiet i danych
+        for department, hours in hours_per_department.items():
+            labels.append(department)
+            data.append(hours)
+
+        return {'labels': labels, 'data': data}
 
 
 class ViewEmployeesHoursView(ListView):
