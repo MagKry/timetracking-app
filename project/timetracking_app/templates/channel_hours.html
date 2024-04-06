@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %} Hours per channel {% endblock %}
+
+{% block content %}
+ <strong> Hours per sales channel: </strong>
+    <br>
+    <br>
+
+    <table>
+      {% for sales_channel, hours in hours_per_channel.items %}
+          <tr>
+          <th> Sales channel </th>
+         <td>{{ sales_channel }}: {{ hours }}</td>
+          </tr>
+      {% endfor %}
+</table>
+--------------------------
+<div>
+    <canvas id="myChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const ctx = document.getElementById('myChart');
+
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: {{ labels|safe }},
+      datasets: [{
+        label: '# hours per sales channel',
+        data: {{ data|safe }},
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
+{% endblock %}
+{% block footer %} {% endblock %}

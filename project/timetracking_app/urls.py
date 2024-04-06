@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from .views import (HomePageView, LoginView, AddHoursView, ViewOwnHoursView, ViewDepartmentHoursView,
     ViewEmployeesHoursView, AddEmployeeView, LogoutView, ListAllHoursView, HoursThisWeekView, HoursThisMonthView,
-    HoursThisYearView, DeleteHoursView, EditHoursView, EditEmployeeView)
+    HoursThisYearView, HoursPerChannelView, DeleteHoursView, EditHoursView, EditEmployeeView)
 
 urlpatterns = [
     path('home/', HomePageView.as_view(), name='home-page'),
@@ -30,6 +30,7 @@ urlpatterns = [
     path('hours_this_week/', HoursThisWeekView.as_view(), name='hours-this-week'),
     path('hours_this_month/', HoursThisMonthView.as_view(), name='hours-this-month'),
     path('hours_this_year/', HoursThisYearView.as_view(), name='hours-this-year'),
+    path('channel_hours/', HoursPerChannelView.as_view(), name='hours-per-channel'),
     path('department_hours/', ViewDepartmentHoursView.as_view(), name='department-hours'),
     path('employees_hours/', ViewEmployeesHoursView.as_view(), name='employees-hours'),
     path('add_employee/', AddEmployeeView.as_view(), name='add-employee'),

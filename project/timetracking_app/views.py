@@ -74,37 +74,13 @@ class ListAllHoursView(ListView):
     paginate_by = 10
     ordering = ['sales_channel']
 
-    def get_queryset(self):
-        return LoggedHours.objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        employee_entries = LoggedHours.objects.filter(employee=self.request.user)
-        hours_per_channel = {}
-        for entry in employee_entries:
-            sales_channel = entry.sales_channel
-            hours = entry.hour
-            if sales_channel in hours_per_channel:
-                hours_per_channel[sales_channel] += hours
-            else:
-                hours_per_channel[sales_channel] = hours
-        context['hours_per_channel'] = hours_per_channel
-        labels_data = self.get_labels_data(self.request.user)
-        context.update(labels_data)
-        return context
-
-    def get_labels_data(self, user):
-        logged_hours = LoggedHours.objects.filter(employee=user)
-        labels = [entry.sales_channel.channel_name for entry in logged_hours]
-        data = [entry.hour for entry in logged_hours]
-        return {'labels': labels, 'data': data}
-
 
 class HoursThisWeekView(ListView):
     model = LoggedHours
     success_url = 'hours-this-week'
     template_name = 'list_hours.html'
     context_object_name = 'employee_entries'
+    paginate_by = 10
     ordering = ['-date']
 
     def get_queryset(self):
@@ -132,6 +108,7 @@ class HoursThisMonthView(ListView):
     success_url = 'hours-this-month'
     template_name = 'list_hours.html'
     context_object_name = 'employee_entries'
+    paginate_by = 10
     ordering = ['-date']
 
     def get_queryset(self):
@@ -158,6 +135,7 @@ class HoursThisYearView(ListView):
     success_url = 'hours-this-year'
     template_name = 'list_hours.html'
     context_object_name = 'employee_entries'
+    paginate_by = 10
     ordering = ['-date']
 
     def get_queryset(self):
@@ -177,6 +155,36 @@ class HoursThisYearView(ListView):
                 hours_per_channel[sales_channel] = hours
         context['hours_per_channel'] = hours_per_channel
         return context
+
+
+class HoursPerChannelView(ListView):
+    model = LoggedHours
+    fields = '__all__'
+    template_name = 'channel_hours.html'
+    context_object_name = 'logged_hours'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        employee_entries = LoggedHours.objects.filter(employee=self.request.user)
+        hours_per_channel = {}
+        for entry in employee_entries:
+            sales_channel = entry.sales_channel
+            hours = entry.hour
+            if sales_channel in hours_per_channel:
+                hours_per_channel[sales_channel] += hours
+            else:
+                hours_per_channel[sales_channel] = hours
+        context['hours_per_channel'] = hours_per_channel
+        labels_data = self.get_labels_data(self.request.user)
+        context.update(labels_data)
+        return context
+
+    def get_labels_data(self, user):
+        logged_hours = LoggedHours.objects.filter(employee=user)
+        labels = [entry.sales_channel.channel_name for entry in logged_hours]
+        data = [entry.hour for entry in logged_hours]
+        return {'labels': labels, 'data': data}
+
 
 
 class ViewDepartmentHoursView(ListView):
