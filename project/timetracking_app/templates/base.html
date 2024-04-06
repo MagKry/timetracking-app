@@ -6,14 +6,16 @@
     {% block head %}
     <head><meta charset="utf-8">
             <img src="{% static 'logo.png' %}" alt="Fake company logo" align="right">
+            <a href="{% url 'home-page' %}"><button type="submit">Home</button></a>
+
 
             {% if user.is_authenticated %}
-            Hello, {{ user }}!
+            Hello, {{ user.username }}!
             {% endif %}
     </head>
     {% endblock %}
 
-    <title> {% block title %} - {% endblock %}</title>
+    <title> {% block title %} Home {% endblock %}</title>
 
     <body>
         <h1>Timetracker</h1>
@@ -32,11 +34,18 @@
             <br>
             <strong> Manage users </strong>
 
-        <a href="{% url 'add-employee' %}"><button type="submit">Add employee</button></a><br>
+        <a href="{% url 'add-employee' %}"><button type="submit">Add employee</button></a>
+{#        <a href="{% url '' %}"><button type="submit">Edit empl (to be) </button></a><br>#}
+
             <br>
         <a href="{% url 'logout-page' %}"><button type="submit">Logout</button></a>
 
             {{ user }}
+
+     -----------------------------------------------------------------------------
+
+
+
 
         {% endblock %}
 

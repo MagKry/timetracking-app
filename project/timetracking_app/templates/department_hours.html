@@ -1,1 +1,25 @@
-department hours
+{% extends 'base.html' %}
+{% block title %} Department hours {% endblock %}
+{% block content %}
+
+ <table>
+        <tr>
+            <th>Department</th>
+            <th>Sales channel</th>
+            <th>Hours</th>
+        </tr>
+        {% for department, sales_channels in hours_per_department.items %}
+            {% for sales_channel, hours in sales_channels.items %}
+                <tr>
+                    {% if forloop.first %}
+                        <td rowspan="{{ sales_channels|length }}">{{ department }}</td>
+                    {% endif %}
+                    <td>{{ sales_channel }}</td>
+                    <td>{{ hours }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </table>
+
+{% endblock %}
+{% block footer %} {% endblock %}
