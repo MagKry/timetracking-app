@@ -21,32 +21,29 @@
         <h1>Timetracker</h1>
         {% block content %}
 
-        {% endblock %}
-        {% block footer %}
             <strong> Log hours </strong>
-        <a href="{% url 'add-hours' %}"><button type="submit">Log hours</button></a><br>
-            <br>
-            <strong> View hours </strong>
+       <p> <a href="{% url 'add-hours' %}"><button type="submit">Log hours</button></a></p>
+            <p><strong> View your hours </strong></p>
 
-        <a href="{% url 'view-hours' %}"><button type="submit">View your hours</button></a>
-        <a href="{% url 'department-hours' %}"><button type="submit">View department hours</button></a>
-        <a href="{% url 'employees-hours' %}"><button type="submit">View employees' hours</button></a><br>
-            <br>
-            <strong> Manage users </strong>
+        <p><a href="{% url 'view-hours' %}"><button type="submit">View your hours</button></a></p>
+         <p><strong> View summarised hours </strong></p>
 
-        <a href="{% url 'add-employee' %}"><button type="submit">Add employee</button></a>
+        <p>
+        <a href="{% url 'hours-per-channel' %}"><button type="submit">Channel hours</button></a>
+        <a href="{% url 'department-hours' %}"><button type="submit">Department hours</button></a>
+        <a href="{% url 'employees-hours' %}"><button type="submit">Employees' hours</button></a>
+        </p>
+            <p><strong> Manage users </strong></p>
+
+        <p><a href="{% url 'add-employee' %}"><button type="submit">Add employee</button></a></p>
 {#        <a href="{% url '' %}"><button type="submit">Edit empl (to be) </button></a><br>#}
 
-            <br>
-        <a href="{% url 'logout-page' %}"><button type="submit">Logout</button></a>
+        {% endblock %}
+
+
+    {% block footer %}    <a href="{% url 'logout-page' %}"><button type="submit">Logout</button></a>
 
             {{ user }}
-
-     -----------------------------------------------------------------------------
-
-
-
-
         {% endblock %}
 
 

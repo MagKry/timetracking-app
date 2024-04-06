@@ -4,14 +4,16 @@
 
 {% block content %}
        <strong> All hours: </strong>
+{% if employee_entries %}
  <br>
 
-        <table>
+        <table border="1">
         <tr>
         <th> Date </th>
         <th> Sales channel </th>
         <th> Department </th>
         <th> Hours </th>
+            <th></th>
         </tr>
 
     {% for entry in employee_entries %}
@@ -20,7 +22,8 @@
         <td>{{ entry.date }} </td>
         <td>{{ entry.sales_channel }} </td>
         <td>{{ entry.department}}</td>
-       <td> {{ entry.hour }}
+       <td> {{ entry.hour }}</td>
+            <td>
            <a href="{% url 'edit-hours' pk=entry.id %}"> <button type="submit" value="edit_hours">Edit</button> </a>
            <a href="{% url 'delete-hours' pk=entry.id %}"> <button type="submit" value="delete_hours">Delete</button> </a></td>
 
@@ -48,54 +51,9 @@
         {% endif %}
     </span>
 </div>
-
- <br>
-
-
-----------------------------------<br>
-    <strong> Hours per sales channel: </strong>
-    <br>
-    <br>
-
-    <table>
-      {% for sales_channel, hours in hours_per_channel.items %}
-          <tr>
-          <th> Sales channel </th>
-         <td>{{ sales_channel }}: {{ hours }}</td>
-          </tr>
-      {% endfor %}
-</table>
---------------------------
-<div>
-  <canvas id="myChart"></canvas>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-  const ctx = document.getElementById('myChart');
-
-  new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: {{ labels|safe }},
-      datasets: [{
-        label: '# hours per sales channel',
-        data: {{ data|safe }},
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-</script>
-
-
+{% else %}
+    <p>There are no entries matching selected criteria.</p>
+{% endif %}
 
 {% endblock %}
 
