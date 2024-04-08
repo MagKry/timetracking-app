@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, get_object_or_404, redirect
@@ -40,6 +41,27 @@ class DateFilterView(View):
             return all_entries
 
 
+# class SummarisedHours(View):
+#
+#     def get_queryset(self):
+#         employee_entries = LoggedHours.objects.all()
+#         return employee_entries
+#
+#     def get_summarised_data(self, field_name, **kwargs):
+#         context = self.super().get_context_data()
+#         employee_entries = self.get_queryset()
+#         hours_per_field = {}
+#         for entry in employee_entries:
+#             field_value = getattr(entry, field_name)
+#             hours = entry.hour
+#             if field_value in hours_per_field:
+#                 hours_per_field[field_value] += hours
+#             else:
+#                 hours_per_field[field_value] = hours
+#         context['hours_per_field'] = hours_per_field
+#         return context
+
+
 class HomePageView(View):
     def get(self, request):
         return render(request, 'base.html')
@@ -69,22 +91,26 @@ class LogoutView(View):
         return render(request, 'logout_page.html',  {'user': user, 'message': 'logged out successfully.'})
 
 
-class AddHoursView(FormView):
+class AddHoursView(LoginRequiredMixin, FormView):
     template_name = 'add_hours.html'
     form_class = AddHoursForm
     success_url = reverse_lazy('view-hours')
 
     def form_valid(self, form):
+        # Pobierz wartość
+        user = self.request.user
+
+        # Utwórz formularz i przekaż wartość do pola
+        form = form
+        form.fields['employee'].initial = user
         date = form.cleaned_data['date']
         form_sales_channel = form.cleaned_data['sales_channel']
         form_department = form.cleaned_data['department']
         sales_channel = get_object_or_404(SalesChannel, channel_name=form_sales_channel)
         department = get_object_or_404(Department, department_name=form_department)
         hour = form.cleaned_data['hour']
-        user = self.request.user
 
-        employee_hours = LoggedHours.objects.create(date=date, hour=hour, sales_channel=sales_channel, department=department)
-        employee_hours.employee.add(user)
+        employee_hours = LoggedHours.objects.create(date=date, hour=hour, employee=user, sales_channel=sales_channel, department=department)
 
         return super().form_valid(form)
 
@@ -290,14 +316,28 @@ class ViewEmployeesHoursView(ListView):
     context_object_name = 'employee_entries'
     ordering = ['employee']
 
-    def get_queryset(self):
-        employees = Person.objects.all()
-        # Tworzymy słownik, w którym kluczem jest pracownik, a wartością jest lista jego godzin
-        all_hours = {}
-        for employee in employees:
-            all_hours[employee] = LoggedHours.objects.filter(employee=employee)
-        return all_hours.items()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Lista godzin wszystkich pracowników
+        employee_entries = LoggedHours.objects.all()
+        context['employee_entries'] = employee_entries
+
+        # Suma godzin dla każdego pracownika
+        hours_per_employee = {}
+        for entry in employee_entries:
+            employee = entry.employee
+            hours = entry.hour
+            if employee is not None:
+                employee = employee
+                if employee in hours_per_employee:
+                    hours_per_employee[employee] += hours
+                else:
+                    hours_per_employee[employee] = hours
+        context['hours_per_employee'] = hours_per_employee
+
+        return context
 
 class AddEmployeeView(CreateView):
     model = Person
@@ -306,17 +346,20 @@ class AddEmployeeView(CreateView):
     success_url = reverse_lazy('employees-hours')
 
     def form_valid(self, form):
-        username = form.cleaned_data['username']
-        first_name = form.cleaned_data['first_name']
-        last_name = form.cleaned_data['last_name']
-        email = form.cleaned_data['email']
+        # username = form.cleaned_data['username']
+        # first_name = form.cleaned_data['first_name']
+        # last_name = form.cleaned_data['last_name']
+        # email = form.cleaned_data['email']
         password = form.cleaned_data['password']
-        department = form.cleaned_data['department']
+        # department = form.cleaned_data['department']
+        response = super().form_valid(form)
+        self.object.set_password(password)
+        self.object.save()
 
-        user = Person.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name,department=department)
-        user.set_password(password)
+        # user = Person.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name,department=department)
 
-        return HttpResponse(f'User {user} successfully added.')
+        return response
+        # return HttpResponse(f'User {user} successfully added.') #metoda super
 
 
 
@@ -338,3 +381,16 @@ class EditEmployeeView(UpdateView): #brakuje przycisku umożliwiającego edycję
     fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
     template_name = 'person_update_form.html'
     success_url = reverse_lazy('employees-hours')
+
+
+class ListEmployeesView(ListView):
+    model = Person
+    success_url = reverse_lazy('list-all-people')
+    template_name ='list_people.html'
+    context_object_name = 'employee_entries'
+
+
+class DeleteEmployeeView(DeleteView):
+    model = Person
+    success_url = reverse_lazy('list-employees')
+    template_name ='delete_people_confirm_delete.html'

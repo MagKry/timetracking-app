@@ -12,7 +12,7 @@ class Person(AbstractUser):
     sales_channels = models.ManyToManyField('SalesChannel')
 
     def __str__(self):
-        return f"{self.username}"
+        return f"{self.username}, {self.first_name}, {self.last_name}"
 
 
 class Department(models.Model):
@@ -20,7 +20,7 @@ class Department(models.Model):
     manager = models.ForeignKey(Person, related_name='department_manager', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.department_name
+        return f'{self.department_name}'
 
 
 class SalesChannel(models.Model):
@@ -28,17 +28,15 @@ class SalesChannel(models.Model):
     department = models.ManyToManyField(Department)
 
     def __str__(self):
-        return self.channel_name
+        return f'{self.channel_name}'
 
 
 class LoggedHours(models.Model):
     date = models.DateField(null=True)
     hour = models.FloatField(validators=(MinValueValidator(0.25), MaxValueValidator(8)))
-    employee = models.ManyToManyField(Person)
+    employee = models.ForeignKey(Person, on_delete=models.CASCADE)
     sales_channel = models.ForeignKey(SalesChannel, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return self.date, self.hour, self.employee, self.sales_channel
-
-
+        return f'{self.date}, {self.hour}, {self.employee}, {self.sales_channel}'
