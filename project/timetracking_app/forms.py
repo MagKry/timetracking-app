@@ -4,14 +4,7 @@ from django import forms
 from django.forms import PasswordInput
 from django.core.exceptions import ValidationError
 
-from .models import SalesChannel, LoggedHours, Department
-
-SALES_CHANNELS = (
-    (1, 'channel_1'),
-    (2, 'channel_2'),
-    (3, 'channel_3'),
-    (4, 'channel_4'),
-)
+from .models import SalesChannel, LoggedHours, Department, Person
 
 
 class LoginForm(forms.Form):
@@ -20,15 +13,23 @@ class LoginForm(forms.Form):
 
 
 class AddHoursForm(forms.ModelForm):
+    employee = forms.ModelChoiceField(queryset=Person.objects.all(), widget=forms.HiddenInput(), required=False)
     class Meta:
         model = LoggedHours
         fields = ['date', 'sales_channel', 'department', 'hour']
         widgets = {'date': forms.DateInput(format=('%Y/%d/%m'), attrs={'placeholder': 'Select a date', 'type': 'date'})}
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Pobierz użytkownika przekazanego do formularza
         super().__init__(*args, **kwargs)
+        if user:
+            # Jeśli użytkownik jest dostępny, ustaw jego wartość dla pola employee
+            self.initial['employee'] = user
+            # Ukryj pole employee w formularzu
+            self.fields['employee'].widget = forms.HiddenInput()
         self.fields['sales_channel'].queryset = SalesChannel.objects.all()
         self.fields['department'].queryset = Department.objects.all()
+
 
     def clean_date(self):
         date = self.cleaned_data['date']

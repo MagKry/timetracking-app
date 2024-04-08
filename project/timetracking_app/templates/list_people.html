@@ -1,0 +1,19 @@
+{% extends 'list_hours.html' %}
+{% block title %} All employees hours{% endblock %}
+{% block content %}
+
+
+
+<ol>
+{% for employee in employee_entries %}
+<li> {{ employee.username }}
+    <a href="{% url 'delete-employee' pk=employee.id %}"> <button type="submit" value="delete_person">Delete</button> </a></td>
+</li>
+{% endfor %}
+</ol>
+
+
+
+{% endblock %}
+
+{% block footer %} {% endblock %}

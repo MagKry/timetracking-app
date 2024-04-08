@@ -11,21 +11,34 @@
         <th> Hours </th>
             <th> ---</th>
         </tr>
-            {% for employee, hours in employee_entries %}
+        {% for entry in employee_entries %}
 
-        {% for entry in hours %}
 
         <tr>
-       <td>{{ employee }}</td>
+       <td>{{ entry.employee.username }}</td>
        <td> {{ entry.date }} </td>
        <td> {{ entry.sales_channel }} </td>
-       <td> {{ entry.hour }}
+       <td> {{ entry.hour }}</td>
+        <td>
+           <a href="{% url 'edit-hours' pk=entry.id %}"> <button type="submit" value="edit_hours">Edit</button> </a>
+           <a href="{% url 'delete-hours' pk=entry.id %}"> <button type="submit" value="delete_hours">Delete</button> </a></td>
 
         </tr>
-    {% endfor %}
 {% endfor %}
 
         </table>
+
+   <table border="1">
+      {% for employee, hours in hours_per_employee.items %}
+          <tr>
+          <th> Employee </th>
+              <th> Hours </th>
+          </tr>
+          <tr>
+              <td> {{ employee.username }}</td><td> {{ hours }}</td>
+          </tr>
+      {% endfor %}
+</table>
 
 {% endblock %}
 
