@@ -62,7 +62,10 @@ class DateFilterView(View):
 #         return context
 
 
-class HomePageView(View):
+class HomePageView(LoginRequiredMixin, View):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     def get(self, request):
         return render(request, 'base.html')
 
@@ -92,9 +95,12 @@ class LogoutView(View):
 
 
 class AddHoursView(LoginRequiredMixin, FormView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
     template_name = 'add_hours.html'
     form_class = AddHoursForm
     success_url = reverse_lazy('view-hours')
+
 
     def form_valid(self, form):
         # Pobierz wartość
@@ -115,12 +121,16 @@ class AddHoursView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class ViewOwnHoursView(View):
+class ViewOwnHoursView(LoginRequiredMixin, View):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
     def get(self, request):
         return render(request, 'view_own_hours.html')
 
 
-class ListAllHoursView(ListView):
+class ListAllHoursView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
     model = LoggedHours
     success_url = 'list_all_hours/'
     template_name = 'list_hours.html'
@@ -128,8 +138,13 @@ class ListAllHoursView(ListView):
     paginate_by = 10
     ordering = ['sales_channel']
 
+    def get_queryset(self):
+        return LoggedHours.objects.filter(employee=self.request.user)
 
-class HoursThisWeekView(ListView):
+
+class HoursThisWeekView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
     model = LoggedHours
     success_url = 'hours-this-week'
     template_name = 'list_hours.html'
@@ -140,7 +155,7 @@ class HoursThisWeekView(ListView):
     def get_queryset(self):
         start_date = datetime.today()
         end_date = start_date + timedelta(days=6)
-        return LoggedHours.objects.filter(date__gte=start_date, date__lte=end_date)
+        return LoggedHours.objects.filter(employee=self.request.user, date__gte=start_date, date__lte=end_date)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -157,7 +172,9 @@ class HoursThisWeekView(ListView):
         return context
 
 
-class HoursThisMonthView(ListView):
+class HoursThisMonthView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
     model = LoggedHours
     success_url = 'hours-this-month'
     template_name = 'list_hours.html'
@@ -167,7 +184,7 @@ class HoursThisMonthView(ListView):
 
     def get_queryset(self):
         current_month = datetime.now().replace(day=1).strftime('%Y-%m-%d')
-        return LoggedHours.objects.filter(date__gte=current_month)
+        return LoggedHours.objects.filter(employee=self.request.user, date__gte=current_month)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -184,7 +201,10 @@ class HoursThisMonthView(ListView):
         return context
 
 
-class HoursThisYearView(ListView):
+class HoursThisYearView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = LoggedHours
     success_url = 'hours-this-year'
     template_name = 'list_hours.html'
@@ -194,7 +214,7 @@ class HoursThisYearView(ListView):
 
     def get_queryset(self):
         current_year = datetime.now().replace(day=1, month=1).strftime('%Y-%m-%d')
-        return LoggedHours.objects.filter(date__gte=current_year)
+        return LoggedHours.objects.filter(employee=self.request.user, date__gte=current_year)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -211,7 +231,10 @@ class HoursThisYearView(ListView):
         return context
 
 
-class HoursPerChannelView(ListView, DateFilterView):
+class HoursPerChannelView(LoginRequiredMixin, ListView, DateFilterView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = LoggedHours
     fields = '__all__'
     template_name = 'channel_hours.html'
@@ -256,7 +279,10 @@ class HoursPerChannelView(ListView, DateFilterView):
         return {'labels': labels, 'data': data}
 
 
-class ViewDepartmentHoursView(ListView, DateFilterView):
+class ViewDepartmentHoursView(LoginRequiredMixin, ListView, DateFilterView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = LoggedHours
     fields = '__all__'
     template_name = 'department_hours.html'
@@ -308,7 +334,10 @@ class ViewDepartmentHoursView(ListView, DateFilterView):
         return {'labels': labels, 'data': data}
 
 
-class ViewEmployeesHoursView(ListView):
+class ViewEmployeesHoursView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = LoggedHours
     fields = '__all__'
     template_name = 'all_employees_hours.html'
@@ -339,7 +368,10 @@ class ViewEmployeesHoursView(ListView):
 
         return context
 
-class AddEmployeeView(CreateView):
+class AddEmployeeView(LoginRequiredMixin, CreateView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = Person
     fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
     template_name = 'add_employee.html'
@@ -363,34 +395,49 @@ class AddEmployeeView(CreateView):
 
 
 
-class DeleteHoursView(DeleteView):
+class DeleteHoursView(LoginRequiredMixin, DeleteView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = LoggedHours
     success_url = reverse_lazy('list-all-hours')
     template_name ='loggedhours_confirm_delete.html'
 
 
-class EditHoursView(UpdateView):
+class EditHoursView(LoginRequiredMixin, UpdateView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = LoggedHours
     fields = ['date', 'hour', 'sales_channel', 'department']
     template_name = 'loggedhours_update_form.html'
     success_url = reverse_lazy('list-all-hours')
 
 
-class EditEmployeeView(UpdateView): #brakuje przycisku umożliwiającego edycję
+class EditEmployeeView(LoginRequiredMixin, UpdateView): #brakuje przycisku umożliwiającego edycję
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = Person
     fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
     template_name = 'person_update_form.html'
     success_url = reverse_lazy('employees-hours')
 
 
-class ListEmployeesView(ListView):
+class ListEmployeesView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = Person
     success_url = reverse_lazy('list-all-people')
     template_name ='list_people.html'
     context_object_name = 'employee_entries'
 
 
-class DeleteEmployeeView(DeleteView):
+class DeleteEmployeeView(LoginRequiredMixin, DeleteView):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+
     model = Person
     success_url = reverse_lazy('list-employees')
     template_name ='delete_people_confirm_delete.html'
