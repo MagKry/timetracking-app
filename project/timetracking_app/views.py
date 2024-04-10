@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import Permission, Group
 from django.contrib.auth.views import LoginView
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -39,6 +41,41 @@ class DateFilterView(View):
         else:
             all_entries = LoggedHours.objects.all()
             return all_entries
+
+
+class CreateCustomPermissionView(View):
+    def get(self, request, *args, **kwargs):
+        # Utwórz ContentType, który odnosi się do modelu, do którego ma być przypisane uprawnienie
+        content_type = ContentType.objects.get_for_model(LoggedHours)
+
+        # Utwórz nowe uprawnienie
+        permission_per_channel = Permission.objects.create(codename='view_hours_per_channel', name='View hours per channel', content_type=content_type)
+        permission_per_department = Permission.objects.create(codename='view_hours_per_department', name='View hours per department', content_type=content_type)
+        permission_per_employee = Permission.objects.create(codename='view_hours_per_employee', name='View hours per employee', content_type=content_type)
+
+        self.add_permission_to_group()
+
+        return HttpResponse("New permission created.")
+
+    def add_permission_to_group(self):
+        director_user = Group.objects.get(name='director_user')
+        manager_user = Group.objects.get(name='manager_user')
+        permission_per_channel = Permission.objects.get(codename='view_hours_per_channel')
+        permission_per_department = Permission.objects.get(codename='view_hours_per_department')
+        permission_per_employee = Permission.objects.get(codename='view_hours_per_employee')
+
+        director_user.permissions.add(permission_per_channel)
+        director_user.permissions.add(permission_per_department)
+        director_user.permissions.add(permission_per_employee)
+
+        manager_user.permissions.add(permission_per_channel)
+        manager_user.permissions.add(permission_per_department)
+        manager_user.permissions.add(permission_per_employee)
+
+        return HttpResponse('Permissions added to groups.')
+
+
+
 
 
 # class SummarisedHours(View):
@@ -231,9 +268,10 @@ class HoursThisYearView(LoginRequiredMixin, ListView):
         return context
 
 
-class HoursPerChannelView(LoginRequiredMixin, ListView, DateFilterView):
+class HoursPerChannelView(LoginRequiredMixin, PermissionRequiredMixin, ListView, DateFilterView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
+    permission_required = ['timetracking_app.view_hours_per_channel']
 
     model = LoggedHours
     fields = '__all__'
@@ -279,9 +317,10 @@ class HoursPerChannelView(LoginRequiredMixin, ListView, DateFilterView):
         return {'labels': labels, 'data': data}
 
 
-class ViewDepartmentHoursView(LoginRequiredMixin, ListView, DateFilterView):
+class ViewDepartmentHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListView, DateFilterView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
+    permission_required = ['timetracking_app.view_hours_per_department']
 
     model = LoggedHours
     fields = '__all__'
@@ -334,9 +373,10 @@ class ViewDepartmentHoursView(LoginRequiredMixin, ListView, DateFilterView):
         return {'labels': labels, 'data': data}
 
 
-class ViewEmployeesHoursView(LoginRequiredMixin, ListView):
+class ViewEmployeesHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
+    permission_required = ['view_hours_per_employee']
 
     model = LoggedHours
     fields = '__all__'
@@ -368,9 +408,10 @@ class ViewEmployeesHoursView(LoginRequiredMixin, ListView):
 
         return context
 
-class AddEmployeeView(LoginRequiredMixin, CreateView):
+class AddEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
+    permission_required = 'add_employee'
 
     model = Person
     fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
