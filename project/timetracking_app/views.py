@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from django.utils import timezone
+from django.utils.timezone import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import Permission, Group
@@ -16,6 +17,18 @@ from .models import LoggedHours, SalesChannel, Person, Department
 
 
 class DateFilterView(View):
+
+    def get_queryset(self):
+        user = self.request.user
+        # restricting data visibility - managers can view their departments only, director can view all departments
+        if user.groups.filter(name='director_user').exists():
+            queryset = LoggedHours.objects.all()
+            return queryset
+        elif user.groups.filter(name='manager_user').exists():
+            queryset = LoggedHours.objects.filter(department=user.department)
+            return queryset
+
+
     def set_up_query_strings(self, *args, **kwargs):
         query_params = QueryDict(mutable=True)
         # Dodawanie parametrów
@@ -28,75 +41,19 @@ class DateFilterView(View):
     def filter_by_dates_range(self, filter_type):
 
         if filter_type == 'weekly':
-            all_entries = LoggedHours.objects.filter(date__gte=datetime.today(),
-                                                     date__lte=datetime.today() + timedelta(days=6))
+            all_entries = LoggedHours.objects.filter(date__gte=timezone.today(),
+                                                     date__lte=timezone.today() + timedelta(days=6))
             return all_entries
         elif filter_type == 'monthly':
-            all_entries = LoggedHours.objects.filter(date__gte=datetime.now().replace(day=1).strftime('%Y-%m-%d'))
+            all_entries = LoggedHours.objects.filter(date__gte=timezone.now().replace(day=1).strftime('%Y-%m-%d'))
             return all_entries
         elif filter_type == 'yearly':
             all_entries = LoggedHours.objects.filter(
-                date__gte=datetime.now().replace(day=1, month=1).strftime('%Y-%m-%d'))
+                date__gte=timezone.now().replace(day=1, month=1).strftime('%Y-%m-%d'))
             return all_entries
         else:
             all_entries = LoggedHours.objects.all()
             return all_entries
-
-
-class CreateCustomPermissionView(View):
-    def get(self, request, *args, **kwargs):
-        # Utwórz ContentType, który odnosi się do modelu, do którego ma być przypisane uprawnienie
-        content_type = ContentType.objects.get_for_model(LoggedHours)
-
-        # Utwórz nowe uprawnienie
-        permission_per_channel = Permission.objects.create(codename='view_hours_per_channel', name='View hours per channel', content_type=content_type)
-        permission_per_department = Permission.objects.create(codename='view_hours_per_department', name='View hours per department', content_type=content_type)
-        permission_per_employee = Permission.objects.create(codename='view_hours_per_employee', name='View hours per employee', content_type=content_type)
-
-        self.add_permission_to_group()
-
-        return HttpResponse("New permission created.")
-
-    def add_permission_to_group(self):
-        director_user = Group.objects.get(name='director_user')
-        manager_user = Group.objects.get(name='manager_user')
-        permission_per_channel = Permission.objects.get(codename='view_hours_per_channel')
-        permission_per_department = Permission.objects.get(codename='view_hours_per_department')
-        permission_per_employee = Permission.objects.get(codename='view_hours_per_employee')
-
-        director_user.permissions.add(permission_per_channel)
-        director_user.permissions.add(permission_per_department)
-        director_user.permissions.add(permission_per_employee)
-
-        manager_user.permissions.add(permission_per_channel)
-        manager_user.permissions.add(permission_per_department)
-        manager_user.permissions.add(permission_per_employee)
-
-        return HttpResponse('Permissions added to groups.')
-
-
-
-
-
-# class SummarisedHours(View):
-#
-#     def get_queryset(self):
-#         employee_entries = LoggedHours.objects.all()
-#         return employee_entries
-#
-#     def get_summarised_data(self, field_name, **kwargs):
-#         context = self.super().get_context_data()
-#         employee_entries = self.get_queryset()
-#         hours_per_field = {}
-#         for entry in employee_entries:
-#             field_value = getattr(entry, field_name)
-#             hours = entry.hour
-#             if field_value in hours_per_field:
-#                 hours_per_field[field_value] += hours
-#             else:
-#                 hours_per_field[field_value] = hours
-#         context['hours_per_field'] = hours_per_field
-#         return context
 
 
 class HomePageView(LoginRequiredMixin, View):
@@ -190,7 +147,7 @@ class HoursThisWeekView(LoginRequiredMixin, ListView):
     ordering = ['-date']
 
     def get_queryset(self):
-        start_date = datetime.today()
+        start_date = timezone.today()
         end_date = start_date + timedelta(days=6)
         return LoggedHours.objects.filter(employee=self.request.user, date__gte=start_date, date__lte=end_date)
 
@@ -220,7 +177,7 @@ class HoursThisMonthView(LoginRequiredMixin, ListView):
     ordering = ['-date']
 
     def get_queryset(self):
-        current_month = datetime.now().replace(day=1).strftime('%Y-%m-%d')
+        current_month = timezone.now().replace(day=1).strftime('%Y-%m-%d')
         return LoggedHours.objects.filter(employee=self.request.user, date__gte=current_month)
 
     def get_context_data(self, **kwargs):
@@ -250,7 +207,7 @@ class HoursThisYearView(LoginRequiredMixin, ListView):
     ordering = ['-date']
 
     def get_queryset(self):
-        current_year = datetime.now().replace(day=1, month=1).strftime('%Y-%m-%d')
+        current_year = timezone.now().replace(day=1, month=1).strftime('%Y-%m-%d')
         return LoggedHours.objects.filter(employee=self.request.user, date__gte=current_year)
 
     def get_context_data(self, **kwargs):
@@ -278,12 +235,40 @@ class HoursPerChannelView(LoginRequiredMixin, PermissionRequiredMixin, ListView,
     template_name = 'channel_hours.html'
     context_object_name = 'logged_hours'
 
+    def get_queryset(self):
+        user = self.request.user
+        # restricting data visibility - managers can view their departments only, director can view all departments
+        if user.groups.filter(name='director_user').exists():
+            queryset = LoggedHours.objects.all()
+        elif user.groups.filter(name='manager_user').exists():
+            queryset = LoggedHours.objects.filter(department=user.department)
+        else:
+            queryset = LoggedHours.objects.none()
+
+        queryset = self.filter_by_dates_range(queryset)
+        return queryset
+
+    def filter_by_dates_range(self, queryset):
+        filter_type = self.request.GET.get('filter_type')
+        if filter_type == 'weekly':
+            start_date = timezone.now() - timezone.timedelta(days=7)
+        elif filter_type == 'monthly':
+            start_date = timezone.now() - timezone.timedelta(days=30)
+        elif filter_type == 'yearly':
+            start_date = timezone.now() - timezone.timedelta(days=365)
+        else:
+            # Default: no filtering
+            return queryset
+
+        return queryset.filter(date__gte=start_date)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         filter_type = self.request.GET.get('filter_type')
-        all_entries = self.filter_by_dates_range(filter_type)
 
         context['filter_type'] = filter_type
+
+        all_entries = self.get_queryset()
 
         hours_per_channel = {}
         for entry in all_entries:
@@ -294,7 +279,8 @@ class HoursPerChannelView(LoginRequiredMixin, PermissionRequiredMixin, ListView,
             else:
                 hours_per_channel[sales_channel] = hours
         context['hours_per_channel'] = hours_per_channel
-        labels_data = self.get_labels_data()
+
+        labels_data = self.get_labels_data(all_entries)
         context.update(labels_data)
 
         context['weekly'] = self.set_up_query_strings('weekly')
@@ -303,9 +289,7 @@ class HoursPerChannelView(LoginRequiredMixin, PermissionRequiredMixin, ListView,
 
         return context
 
-    def get_labels_data(self):
-        filter_type = self.request.GET.get('filter_type')
-        logged_hours = self.filter_by_dates_range(filter_type)
+    def get_labels_data(self, logged_hours):
         labels = []
         data = []
         for entry in logged_hours:
@@ -328,6 +312,16 @@ class ViewDepartmentHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListV
     context_object_name = 'logged_hours'
 
     def get_queryset(self):
+        user = self.request.user
+        #restricting data visibility - managers can view their departments only, director can view all departments
+        if user.groups.filter(name='director_user').exists():
+            queryset = LoggedHours.objects.all()
+            return queryset
+        elif user.groups.filter(name='manager_user').exists():
+            queryset = LoggedHours.objects.filter(department=user.department)
+            return queryset
+
+        #calling function that filters data by specified date ranges
         filter_type = self.request.GET.get('filter_type')
         return self.filter_by_dates_range(filter_type)
 
@@ -376,7 +370,7 @@ class ViewDepartmentHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListV
 class ViewEmployeesHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
-    permission_required = ['view_hours_per_employee']
+    permission_required = ['timetracking_app.view_hours_per_employee']
 
     model = LoggedHours
     fields = '__all__'
@@ -436,9 +430,10 @@ class AddEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
 
 
-class DeleteHoursView(LoginRequiredMixin, DeleteView):
+class DeleteHoursView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
+    permission_required = 'timetracking_app.delete_hours'
 
     model = LoggedHours
     success_url = reverse_lazy('list-all-hours')
@@ -455,9 +450,10 @@ class EditHoursView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('list-all-hours')
 
 
-class EditEmployeeView(LoginRequiredMixin, UpdateView): #brakuje przycisku umożliwiającego edycję
+class EditEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView): #brakuje przycisku umożliwiającego edycję
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
+    permission_required = 'timetracking_app.edit_employee'
 
     model = Person
     fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
@@ -465,9 +461,10 @@ class EditEmployeeView(LoginRequiredMixin, UpdateView): #brakuje przycisku umoż
     success_url = reverse_lazy('employees-hours')
 
 
-class ListEmployeesView(LoginRequiredMixin, ListView):
+class ListEmployeesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
+    permission_required = 'timetracking_app.view_employee'
 
     model = Person
     success_url = reverse_lazy('list-all-people')
@@ -475,9 +472,10 @@ class ListEmployeesView(LoginRequiredMixin, ListView):
     context_object_name = 'employee_entries'
 
 
-class DeleteEmployeeView(LoginRequiredMixin, DeleteView):
+class DeleteEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
+    permission_required = 'timetracking_app.delete_employee'
 
     model = Person
     success_url = reverse_lazy('list-employees')
