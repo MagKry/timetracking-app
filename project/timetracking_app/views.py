@@ -394,3 +394,6 @@ class DeleteEmployeeView(DeleteView):
     model = Person
     success_url = reverse_lazy('list-employees')
     template_name ='delete_people_confirm_delete.html'
+
+
+

@@ -5,12 +5,16 @@
 <html>
     {% block head %}
     <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-theme.min.css' %}">
+
             <img src="{% static 'logo.png' %}" alt="Fake company logo" align="right">
             <a href="{% url 'home-page' %}"><button type="submit">Home</button></a>
 
 
             {% if user.is_authenticated %}
-            Hello, {{ user.username }}!
+            Hello, {{ user.username | title }}!
             {% endif %}
     </head>
     {% endblock %}
@@ -43,9 +47,10 @@
 
     {% block footer %}    <a href="{% url 'logout-page' %}"><button type="submit">Logout</button></a>
 
-            {{ user.username }}
+            {{ user.username | title}}
         {% endblock %}
 
-
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
     </body>
 </html>
