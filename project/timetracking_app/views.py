@@ -379,12 +379,26 @@ class ViewEmployeesHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListVi
     context_object_name = 'employee_entries'
     ordering = ['employee']
 
+    def get_queryset(self):
+        user = self.request.user
+        #restricting data visibility - managers can view their departments only, director can view all departments
+        if user.groups.filter(name='director_user').exists():
+            queryset = LoggedHours.objects.all()
+            return queryset
+        elif user.groups.filter(name='manager_user').exists():
+            queryset = LoggedHours.objects.filter(department=user.department)
+            return queryset
+
+        #calling function that filters data by specified date ranges
+        filter_type = self.request.GET.get('filter_type')
+        return self.filter_by_dates_range(filter_type)
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         # Lista godzin wszystkich pracowników
-        employee_entries = LoggedHours.objects.all()
+        employee_entries = self.get_queryset()
         context['employee_entries'] = employee_entries
 
         # Suma godzin dla każdego pracownika
@@ -405,7 +419,7 @@ class ViewEmployeesHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListVi
 class AddEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
-    permission_required = 'add_employee'
+    permission_required = 'timetracking_app.add_person'
 
     model = Person
     fields = ['username', 'first_name', 'last_name', 'email', 'password', 'department']
@@ -464,7 +478,7 @@ class EditEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 class ListEmployeesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
-    permission_required = 'timetracking_app.view_employee'
+    permission_required = 'timetracking_app.view_person'
 
     model = Person
     success_url = reverse_lazy('list-all-people')

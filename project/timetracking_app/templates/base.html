@@ -38,11 +38,11 @@
         <a href="{% url 'employees-hours' %}"><button type="submit">Employees' hours</button></a>
             {% endif %}
         </p>
+        {% if perms.timetracking_app.add_person %}
             <p><strong> Manage users </strong></p>
-{#        {% if perms.timetracking_app.add_user %}#}
         <p><a href="{% url 'add-employee' %}"><button type="submit">Add employee</button></a></p>
-{#        {% endif %}#}
-            {% if perms.timetracking_app.view_employee %}
+        {% endif %}
+            {% if perms.timetracking_app.view_person %}
         <p><a href="{% url 'list-employees' %}"><button type="submit">View employees' list</button></a></p>
         {% endif %}
 {#        <a href="{% url '' %}"><button type="submit">Edit empl (to be) </button></a><br>#}
