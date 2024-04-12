@@ -10,7 +10,7 @@
 
 
             {% if user.is_authenticated %}
-            Hello, {{ user.username }}!
+            Hello, {{ user.username | title }}!
             {% endif %}
     </head>
     {% endblock %}
@@ -27,15 +27,24 @@
 
         <p><a href="{% url 'view-hours' %}"><button type="submit">View your hours</button></a></p>
          <p><strong> View summarised hours </strong></p>
-
         <p>
+            {%  if perms.timetracking_app.view_hours_per_channel %}
         <a href="{% url 'hours-per-channel' %}"><button type="submit">Channel hours</button></a>
+            {% endif %}
+            {% if perms.timetracking_app.view_hours_per_department %}
         <a href="{% url 'department-hours' %}"><button type="submit">Department hours</button></a>
+            {% endif %}
+            {% if perms.timetracking_app.view_hours_per_employee %}
         <a href="{% url 'employees-hours' %}"><button type="submit">Employees' hours</button></a>
+            {% endif %}
         </p>
+        {% if perms.timetracking_app.add_person %}
             <p><strong> Manage users </strong></p>
-
         <p><a href="{% url 'add-employee' %}"><button type="submit">Add employee</button></a></p>
+        {% endif %}
+            {% if perms.timetracking_app.view_person %}
+        <p><a href="{% url 'list-employees' %}"><button type="submit">View employees' list</button></a></p>
+        {% endif %}
 {#        <a href="{% url '' %}"><button type="submit">Edit empl (to be) </button></a><br>#}
 
         {% endblock %}
@@ -43,7 +52,7 @@
 
     {% block footer %}    <a href="{% url 'logout-page' %}"><button type="submit">Logout</button></a>
 
-            {{ user.username }}
+            {{ user.username|title }}
         {% endblock %}
 
 
