@@ -1,3 +1,6 @@
+import mailchimp_transactional as MailchimpTransactional
+from mailchimp_transactional.api_client import ApiClientError
+
 from django.utils import timezone
 from django.utils.timezone import timedelta
 
@@ -489,8 +492,18 @@ class ListEmployeesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class DeleteEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
-    permission_required = 'timetracking_app.delete_employee'
+    permission_required = 'timetracking_app.delete_person'
 
     model = Person
     success_url = reverse_lazy('list-employees')
     template_name ='delete_people_confirm_delete.html'
+
+
+class SendMessage(View):
+    def set_up_messages(self):
+        try:
+            mailchimp = MailchimpTransactional.Client("YOUR_API_KEY")
+            response = client.messages.send({"message": {}}) #powinno być mailchimp.messages.send()
+            print(response)
+        except ApiClientError as error:
+            print("An exception occurred: {}".format(error.text))
