@@ -2,7 +2,7 @@
 {% block title %} All employees hours{% endblock %}
 {% block content %}
 
-
+{% if perms.timetracking_app.view_hours_per_channel %}
     <table>
         <tr>
         <th>Person</th>
@@ -39,6 +39,8 @@
           </tr>
       {% endfor %}
 </table>
+    {% else %} You don't have permissions to view this site.
+    {% endif %}
 
 {% endblock %}
 

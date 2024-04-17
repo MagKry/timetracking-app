@@ -7,7 +7,9 @@
 <ol>
 {% for employee in employee_entries %}
 <li> {{ employee.username }}
+    {% if perms.timetracking_app.delete_person %}
     <a href="{% url 'delete-employee' pk=employee.id %}"> <button type="submit" value="delete_person">Delete</button> </a></td>
+        {% endif %}
 </li>
 {% endfor %}
 </ol>
