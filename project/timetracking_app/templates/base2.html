@@ -1,0 +1,57 @@
+{% load static %}
+
+
+
+<!doctype html>
+<html>
+    {% block head %}
+    <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+            <img src="{% static 'logo.png' %}" alt="Fake company logo" align="right">
+            <a href="{% url 'home-page' %}"><button type="submit">Home</button></a>
+
+
+            {% if user.is_authenticated %}
+            Hello, {{ user.username | title }}!
+            {% endif %}
+     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    </head>
+    {% endblock %}
+
+    <title> {% block title %} Home {% endblock %}</title>
+
+    <body>
+        <h1>Timetracker</h1>
+        {% block content %}
+
+            <strong> Log hours </strong>
+       <p> <a href="{% url 'add-hours' %}"><button type="submit">Log hours</button></a></p>
+            <p><strong> View your hours </strong></p>
+
+        <p><a href="{% url 'view-hours' %}"><button type="submit">View your hours</button></a></p>
+         <p><strong> View summarised hours </strong></p>
+
+        <p>
+        <a href="{% url 'hours-per-channel' %}"><button type="submit">Channel hours</button></a>
+        <a href="{% url 'department-hours' %}"><button type="submit">Department hours</button></a>
+        <a href="{% url 'employees-hours' %}"><button type="submit">Employees' hours</button></a>
+        </p>
+            <p><strong> Manage users </strong></p>
+
+            <p><a href="{% url 'add-employee' %}"><button type="submit">Add employee</button></a></p>
+{#        <a href="{% url '' %}"><button type="submit">Edit empl (to be) </button></a><br>#}
+
+        {% endblock %}
+
+
+    {% block footer %}    <a href="{% url 'logout-page' %}"><button type="submit">Logout</button></a>
+
+            {{ user.username | title}}
+        {% endblock %}
+
+    <script src="{% static 'js/scripts.js' %}"></script>
+    </body>
+</html>
