@@ -122,19 +122,6 @@ class ViewOwnHoursView(LoginRequiredMixin, View):
         return render(request, 'view_own_hours.html')
 
 
-class ListAllHoursView(LoginRequiredMixin, ListView):
-    login_url = '/login/'
-    redirect_field_name = 'redirect_to'
-    model = LoggedHours
-    success_url = 'list_all_hours/'
-    template_name = 'list_hours.html'
-    context_object_name = 'employee_entries'
-    paginate_by = 10
-    ordering = ['sales_channel']
-
-    def get_queryset(self):
-        return LoggedHours.objects.filter(employee=self.request.user)
-
 
 class HoursThisWeekView(LoginRequiredMixin, ListView):
     login_url = '/login/'
