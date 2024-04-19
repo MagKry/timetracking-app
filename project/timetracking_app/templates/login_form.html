@@ -3,7 +3,7 @@
 {% block content %}
 {{ error_message }}
 
-    <form action="" method="post">
+    <form action="{% url 'login-page' %}{% if redirect_to %}?next={{ redirect_to|urlencode }}{% endif %}" method="post">
         {% csrf_token %}
         {{form.as_p}}
         <input type="submit" value="Submit">
