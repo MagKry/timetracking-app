@@ -20,8 +20,12 @@
        <td> {{ entry.sales_channel }} </td>
        <td> {{ entry.hour }}</td>
         <td>
+            {% if perms.timetracking_app.change_hours %}
            <a href="{% url 'edit-hours' pk=entry.id %}"> <button type="submit" value="edit_hours">Edit</button> </a>
+            {% endif %}
+            {% if perms.timetracking_app.delete_hours %}
            <a href="{% url 'delete-hours' pk=entry.id %}"> <button type="submit" value="delete_hours">Delete</button> </a></td>
+            {% endif %}
 
         </tr>
 {% endfor %}
