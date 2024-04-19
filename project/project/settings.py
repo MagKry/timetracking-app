@@ -123,6 +123,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 try:
     from project.local_settings import DATABASES
 except ModuleNotFoundError:
@@ -135,5 +136,12 @@ try:
     from project.local_settings import SECRET_KEY
 except ModuleNotFoundError:
     print("Secretkey in local_settings.py is missing!")
+    print("Fill the data and try again!")
+    exit(0)
+
+try:
+    from project.local_settings import SENDGRID_API_KEY
+except ModuleNotFoundError:
+    print("Sendgrid API KEY in local_settings.py is missing!")
     print("Fill the data and try again!")
     exit(0)
