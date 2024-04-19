@@ -1,5 +1,6 @@
-import mailchimp_transactional as MailchimpTransactional
-from mailchimp_transactional.api_client import ApiClientError
+import sendgrid
+import os
+from sendgrid.helpers.mail import *
 
 from django.utils import timezone
 from django.utils.timezone import timedelta
@@ -14,6 +15,8 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import FormView, ListView, DeleteView, UpdateView, CreateView
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import send_mail
+from django.conf import settings
 
 from .forms import AddHoursForm, LoginForm
 from .models import LoggedHours, SalesChannel, Person, Department
@@ -507,3 +510,16 @@ class SendMessage(View):
             print(response)
         except ApiClientError as error:
             print("An exception occurred: {}".format(error.text))
+
+
+def send_email_with_sendgrid():
+    sg = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
+    from_email = Email("test@example.com")
+    to_email = To("test@example.com")
+    subject = "Sending with SendGrid is Fun"
+    content = Content("text/plain", "and easy to do anywhere, even with Python")
+    mail = Mail(from_email, to_email, subject, content)
+    response = sg.client.mail.send.post(request_body=mail.get())
+    print(response.status_code)
+    print(response.body)
+    print(response.headers)
