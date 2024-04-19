@@ -1,58 +1,36 @@
-{% load static %}
-
-
-
-<!doctype html>
-<html>
-   {% block head %}
-      <head>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>{% block title %} Home {% endblock %}</title>
+        <title>{% block title %}  {% endblock %}</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
 
         <!-- Core theme CSS (includes Bootstrap)-->
-     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
+        <link href="css/styles.css" rel="stylesheet" />
     </head>
-    {% endblock %}
-
-
     <body>
-         <div class="d-flex" id="wrapper">
-
+        <div class="d-flex" id="wrapper">
             <!-- Sidebar-->
             <div class="border-end bg-white" id="sidebar-wrapper">
-                {% if user.is_authenticated %}
-
                 <div class="sidebar-heading border-bottom bg-light">Timetracker</div>
                 <div class="list-group list-group-flush">
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{% url 'add-hours' %}">Log hours</a>
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{% url 'view-hours' %}">View hours</a>
-                     {%  if perms.timetracking_app.view_hours_per_channel %}
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{% url 'hours-per-channel' %}">Hours per channel</a>
-                     {% endif %}
-                    {%  if perms.timetracking_app.view_hours_per_department %}
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{% url 'department-hours' %}">Hours per department</a>
-                     {% endif %}
-                    {%  if perms.timetracking_app.view_hours_per_employee %}
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{% url 'employees-hours' %}">Employee hours</a>
-                     {% endif %}
-                    {% if perms.timetracking_app.add_person %}
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{% url 'add-employee' %}">Add employee</a>
-                        {% endif %}
                 </div>
-                {% endif %}
             </div>
             <!-- Page content wrapper-->
             <div id="page-content-wrapper">
                 <!-- Top navigation-->
                 <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
                     <div class="container-fluid">
-                        {% if user.is_authenticated %}
                         <button class="btn btn-primary" id="sidebarToggle">Toggle Menu</button>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -68,8 +46,6 @@
                                 </li>
                             </ul>
                         </div>
-                        {% endif %}
-
                     </div>
                 </nav>
                 <!-- Page content-->
@@ -79,12 +55,11 @@
                         Hello, {{ user.username | title }}!
                         {% endif %}
                     </h1>
-                    {% if user.is_authenticated %}
                     <p>Welcome to the timetracker. Please log or view hours. </p>
-                    {% endif %}
                     <p>
                         <code>{% block content %} {% endblock %}</code>
-                        <code>{% block footer %} {% endblock %}</code>
+                        <code>#sidebarToggle</code>
+                        ID which will toggle the menu when clicked.
                     </p>
                 </div>
             </div>
@@ -93,6 +68,5 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
-
     </body>
 </html>

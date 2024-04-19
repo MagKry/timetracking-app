@@ -47,8 +47,8 @@ class DateFilterView(View):
     def filter_by_dates_range(self, filter_type):
 
         if filter_type == 'weekly':
-            all_entries = LoggedHours.objects.filter(date__gte=timezone.today(),
-                                                     date__lte=timezone.today() + timedelta(days=6))
+            all_entries = LoggedHours.objects.filter(date__gte=timezone.now(),
+                                                     date__lte=timezone.now() + timedelta(days=6))
             return all_entries
         elif filter_type == 'monthly':
             all_entries = LoggedHours.objects.filter(date__gte=timezone.now().replace(day=1).strftime('%Y-%m-%d'))
@@ -153,7 +153,7 @@ class HoursThisWeekView(LoginRequiredMixin, ListView):
     ordering = ['-date']
 
     def get_queryset(self):
-        start_date = timezone.today()
+        start_date = timezone.now()
         end_date = start_date + timedelta(days=6)
         return LoggedHours.objects.filter(employee=self.request.user, date__gte=start_date, date__lte=end_date)
 
@@ -501,15 +501,6 @@ class DeleteEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView
     success_url = reverse_lazy('list-employees')
     template_name ='delete_people_confirm_delete.html'
 
-
-class SendMessage(View):
-    def set_up_messages(self):
-        try:
-            mailchimp = MailchimpTransactional.Client("YOUR_API_KEY")
-            response = client.messages.send({"message": {}}) #powinno być mailchimp.messages.send()
-            print(response)
-        except ApiClientError as error:
-            print("An exception occurred: {}".format(error.text))
 
 
 def send_email_with_sendgrid():
