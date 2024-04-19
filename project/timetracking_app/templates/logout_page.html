@@ -1,8 +1,10 @@
 {% extends 'form.html' %}
 {% block title %} Logout {% endblock %}
+{% block body %}
+{% endblock %}
 
 {% block content %}
-    {{ user.username|title }} {{ message }} <br>
+   <div> {{ user.username|title }} {{ message }} </div>
 {% endblock %}
 
 {% block footer %}

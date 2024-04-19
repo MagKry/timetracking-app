@@ -275,7 +275,7 @@ class HoursPerChannelView(LoginRequiredMixin, PermissionRequiredMixin, ListView,
             queryset = LoggedHours.objects.filter(department=user.department)
 
         else:
-            queryset = LoggedHours.objects.none()
+            queryset = LoggedHours.objects.all()
 
         queryset = self.filter_by_dates_range(queryset)
         return queryset
