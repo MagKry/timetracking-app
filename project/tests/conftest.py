@@ -54,6 +54,6 @@ def add_test_hours(create_test_user, create_test_channel, create_test_department
     sales_channel = create_test_channel
     hour = random.randint(1, 8)
     added_hours = LoggedHours.objects.create(date=date, hour=hour, employee=user, sales_channel=sales_channel, department=department)
-    return added_hours.hour
+    return added_hours
 
 
