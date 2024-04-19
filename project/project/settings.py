@@ -138,3 +138,10 @@ except ModuleNotFoundError:
     print("Secretkey in local_settings.py is missing!")
     print("Fill the data and try again!")
     exit(0)
+
+try:
+    from project.local_settings import SENDGRID_API_KEY
+except ModuleNotFoundError:
+    print("Sendgrid API KEY in local_settings.py is missing!")
+    print("Fill the data and try again!")
+    exit(0)

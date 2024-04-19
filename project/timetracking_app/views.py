@@ -1,3 +1,7 @@
+import sendgrid
+import os
+from sendgrid.helpers.mail import *
+
 from django.utils import timezone
 from django.utils.timezone import timedelta
 
@@ -11,6 +15,8 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import FormView, ListView, DeleteView, UpdateView, CreateView
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import send_mail
+from django.conf import settings
 
 from .forms import AddHoursForm, LoginForm
 from .models import LoggedHours, SalesChannel, Person, Department
@@ -520,11 +526,11 @@ class ListEmployeesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     context_object_name = 'employee_entries'
 
 
-#Delet the employee (for logged in users with specified permissions)
+#Delete the employee (for logged in users with specified permissions)
 class DeleteEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
-    permission_required = 'timetracking_app.delete_employee'
+    permission_required = 'timetracking_app.delete_person'
 
     model = Person
     success_url = reverse_lazy('list-employees')
