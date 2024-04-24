@@ -11,3 +11,4 @@ Hours added in the app can be filtered based on dates (all, current week, curren
 
 Bootstrap has been used for frontend.
 Models have been registered in django-admin.
+Database - postgresQL
