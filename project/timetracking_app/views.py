@@ -83,9 +83,10 @@ class LoginView(FormView):
     success_url = reverse_lazy('home-page')
 
     def form_valid(self, form):
-        username = form.cleaned_data['login'] #fetch login
+        # username = form.cleaned_data['username'] #fetch login
+        email = form.cleaned_data['email']
         password = form.cleaned_data['password'] #fetch password
-        user = authenticate(username=username, password=password) #authenticate user
+        user = authenticate(username=email, password=password) #authenticate user
 
         #if user is aythenticated - log them in
         if user is not None:
@@ -253,7 +254,7 @@ class HoursThisYearView(LoginRequiredMixin, ListView):
         return context
 
 
-#Allow access to view summaries hours per seales channel to logged in users with specified permissions.
+#Allow access to view summaries hours per sales channel to logged in users with specified permissions.
 class HoursPerChannelView(LoginRequiredMixin, PermissionRequiredMixin, ListView, DateFilterView):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'

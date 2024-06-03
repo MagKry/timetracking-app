@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
-import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -46,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'timetracking_app',
-    'chartjs'
+    'chartjs',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -82,7 +82,17 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-DATABASES = os.getenv('DATABASES')
+
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('ENGINE'),
+        'NAME': os.getenv('NAME'),
+        'HOST': os.getenv('HOST'),
+        'PASSWORD': os.getenv('PASSWORD'),
+        'USER': os.getenv('DB_USER'),
+        'PORT': os.getenv('PORT')
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -109,7 +119,7 @@ AUTH_USER_MODEL = 'timetracking_app.Person'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Warsaw'
 
 USE_I18N = True
 
@@ -121,9 +131,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "/project/static/"),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 
 # Default primary key field type

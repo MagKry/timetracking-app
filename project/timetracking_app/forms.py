@@ -8,8 +8,9 @@ from .models import SalesChannel, LoggedHours, Department, Person
 
 
 class LoginForm(forms.Form):
-    login = forms.CharField(max_length=64)
-    password = forms.CharField(max_length=64, widget=PasswordInput)
+    # username = forms.CharField(label='login', max_length=64)
+    email = forms.EmailField(label='email')
+    password = forms.CharField(label='password', max_length=64, widget=PasswordInput)
 
 
 class AddHoursForm(forms.ModelForm):
