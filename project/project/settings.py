@@ -11,6 +11,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +26,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
+SECRET_KEY = os.getenv('SECRET_KEY')
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'timetracking_app',
-    'chartjs'
+    'chartjs',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -75,6 +83,16 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('ENGINE'),
+        'NAME': os.getenv('NAME'),
+        'HOST': os.getenv('HOST'),
+        'PASSWORD': os.getenv('PASSWORD'),
+        'USER': os.getenv('DB_USER'),
+        'PORT': os.getenv('PORT')
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -101,7 +119,7 @@ AUTH_USER_MODEL = 'timetracking_app.Person'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Warsaw'
 
 USE_I18N = True
 
@@ -113,9 +131,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "/project/static/"),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 
 # Default primary key field type
@@ -124,24 +142,24 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-try:
-    from project.local_settings import DATABASES
-except ModuleNotFoundError:
-    print("Database configuration in local_settings.py is missing!")
-    print("Fill the data and try again!")
-    exit(0)
-
-
-try:
-    from project.local_settings import SECRET_KEY
-except ModuleNotFoundError:
-    print("Secretkey in local_settings.py is missing!")
-    print("Fill the data and try again!")
-    exit(0)
-
-try:
-    from project.local_settings import SENDGRID_API_KEY
-except ModuleNotFoundError:
-    print("Sendgrid API KEY in local_settings.py is missing!")
-    print("Fill the data and try again!")
-    exit(0)
+# try:
+#     from project.local_settings import DATABASES
+# except ModuleNotFoundError:
+#     print("Database configuration in local_settings.py is missing!")
+#     print("Fill the data and try again!")
+#     exit(0)
+#
+#
+# try:
+#     from project.local_settings import SECRET_KEY
+# except ModuleNotFoundError:
+#     print("Secretkey in local_settings.py is missing!")
+#     print("Fill the data and try again!")
+#     exit(0)
+#
+# try:
+#     from project.local_settings import SENDGRID_API_KEY
+# except ModuleNotFoundError:
+#     print("Sendgrid API KEY in local_settings.py is missing!")
+#     print("Fill the data and try again!")
+#     exit(0)

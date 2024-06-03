@@ -8,11 +8,15 @@ from django.db import models
 
 
 class Person(AbstractUser):
+    email = models.EmailField(unique=True)
     department = models.ForeignKey('Department', related_name='persons_department', on_delete=models.CASCADE, null=True)
     sales_channels = models.ManyToManyField('SalesChannel')
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
     def __str__(self):
-        return f"{self.username}, {self.first_name}, {self.last_name}"
+        return f"{self.username}, {self.first_name}, {self.last_name}, {self.email}"
 
 
 class Department(models.Model):
