@@ -20,7 +20,7 @@ from .views import (HomePageView, LoginView, AddHoursView, ViewOwnHoursView, Vie
                     ViewEmployeesHoursView, AddEmployeeView, LogoutView, ListAllHoursView, HoursThisWeekView,
                     HoursThisMonthView,
                     HoursThisYearView, HoursPerChannelView, DeleteHoursView, EditHoursView, EditEmployeeView,
-                    ListEmployeesView, DeleteEmployeeView)
+                    ListEmployeesView, DeactivateEmployeeView)
 
 urlpatterns = [
     path('home/', HomePageView.as_view(), name='home-page'),
@@ -40,6 +40,6 @@ urlpatterns = [
     path('edit_hours/<int:pk>/', EditHoursView.as_view(), name='edit-hours'),
     path('edit_employee/<int:pk>/', EditEmployeeView.as_view(), name='edit-employee'),
     path('list_employees/', ListEmployeesView.as_view(), name='list-employees'),
-    path('delete_employee/<int:pk>', DeleteEmployeeView.as_view(), name='delete-employee'),
+    path('deactivate_employee/<int:pk>', DeactivateEmployeeView.as_view(), name='deactivate-employee'),
 
 ]
