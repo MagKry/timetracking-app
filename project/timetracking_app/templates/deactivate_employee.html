@@ -1,0 +1,8 @@
+
+    <form action="" method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+        The user will be deactivated. Press OK to complete the deactivation process.
+
+        <input type="submit" value="OK">
+    </form>

@@ -1,5 +1,6 @@
 import sendgrid
 import os
+
 from sendgrid.helpers.mail import *
 
 from django.utils import timezone
@@ -9,6 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.models import Permission, Group
 from django.contrib.auth.views import LoginView
 from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -527,12 +529,22 @@ class ListEmployeesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     context_object_name = 'employee_entries'
 
 
-#Delete the employee (for logged in users with specified permissions)
-class DeleteEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+#Deactivate the employee (for logged in users with specified permissions)
+class DeactivateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
     permission_required = 'timetracking_app.delete_person'
 
     model = Person
     success_url = reverse_lazy('list-employees')
-    template_name ='delete_people_confirm_delete.html'
+    template_name ='deactivate_employee.html'
+
+    def get(self, request, pk):
+        employee = Person.objects.get(pk=pk)
+        return render(request, self.template_name, {'employee': employee})
+
+    def post(self, request, pk):
+        employee = Person.objects.get(pk=pk)
+        employee.is_active = False
+        employee.save()
+        return redirect(self.success_url)
