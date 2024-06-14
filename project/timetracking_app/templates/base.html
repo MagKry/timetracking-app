@@ -65,7 +65,11 @@
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="{% url 'list-employees' %}">List employees </a>
                                         <div class="dropdown-divider"></div>
+                                        {% if user.is_superuser %}
                                         <a class="dropdown-item" href="{% url 'admin:index' %}">Administration panel </a>
+                                        <div class="dropdown-divider"></div>
+                                        {% endif %}
+                                        <a class="dropdown-item" href="{% url 'password_reset' %}">Reset password </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="{% url 'logout-page' %}">Logout</a>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">

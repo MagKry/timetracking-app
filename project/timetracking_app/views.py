@@ -11,16 +11,21 @@ from django.contrib.auth.models import Permission, Group
 from django.contrib.auth.views import LoginView
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
+from django.contrib.auth.tokens import default_token_generator
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import FormView, ListView, DeleteView, UpdateView, CreateView
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from django.conf import settings
 
-from .forms import AddHoursForm, LoginForm
+from .forms import AddHoursForm, LoginForm, ResetPasswordForm
 from .models import LoggedHours, SalesChannel, Person, Department
 
 
@@ -548,3 +553,30 @@ class DeactivateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, View):
         employee.is_active = False
         employee.save()
         return redirect(self.success_url)
+
+
+class ResetPasswordView(FormView):
+    login_url = reverse_lazy('login-page')
+    model = Person
+    template_name = 'form.html'
+    context_object_name = 'user'
+    form_class = ResetPasswordForm
+    success_url = reverse_lazy('home-page')
+
+
+    def send_password_reset_email(self, user):
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        password_reset_url = reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+        password_reset_link = f"{settings.SITE_URL}{password_reset_url}"
+
+        subject = 'Set your password'
+        message = render_to_string('registration/set_password_email.html', {
+            'user': user,
+            'password_reset_link': password_reset_link,
+        })
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+
+        user.is_active = True  # Aktywacja użytkownika po wysłaniu e-maila
+        user.save()
+

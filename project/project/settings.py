@@ -114,6 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'timetracking_app.Person'
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -142,24 +143,12 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# try:
-#     from project.local_settings import DATABASES
-# except ModuleNotFoundError:
-#     print("Database configuration in local_settings.py is missing!")
-#     print("Fill the data and try again!")
-#     exit(0)
-#
-#
-# try:
-#     from project.local_settings import SECRET_KEY
-# except ModuleNotFoundError:
-#     print("Secretkey in local_settings.py is missing!")
-#     print("Fill the data and try again!")
-#     exit(0)
-#
-# try:
-#     from project.local_settings import SENDGRID_API_KEY
-# except ModuleNotFoundError:
-#     print("Sendgrid API KEY in local_settings.py is missing!")
-#     print("Fill the data and try again!")
-#     exit(0)
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+SITE_URL = os.getenv('SITE_URL')
+
