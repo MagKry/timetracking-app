@@ -40,3 +40,9 @@ class AddHoursForm(forms.ModelForm):
             raise ValidationError(f"The date must be within last 30 days.")
         return date
 
+
+class ResetPasswordForm(forms.Form):
+    email = forms.EmailField(label='Email')
+    new_password = forms.CharField(label='New password', widget=forms.PasswordInput)
+    confirm_password = forms.CharField(label='Confirm new password', widget=forms.PasswordInput)
+
