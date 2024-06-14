@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import FormView, ListView, DeleteView, UpdateView, CreateView
 from django.contrib.auth import authenticate, login, logout
@@ -72,7 +72,6 @@ class DateFilterView(View):
 #Home page - visible to logged in users only.
 class HomePageView(LoginRequiredMixin, View):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
 
     def get(self, request):
         return render(request, 'base.html')
@@ -81,7 +80,6 @@ class HomePageView(LoginRequiredMixin, View):
 class LoginView(FormView):
     template_name = 'login_form.html'
     form_class = LoginForm
-    redirect_field_name = 'redirect_to'
     success_url = reverse_lazy('home-page')
 
     def form_valid(self, form):
@@ -108,7 +106,6 @@ class LogoutView(View):
 #Add hours of a logged in user to the database.
 class AddHoursView(LoginRequiredMixin, FormView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     template_name = 'add_hours.html'
     form_class = AddHoursForm
     success_url = reverse_lazy('view-hours')
@@ -136,14 +133,12 @@ class AddHoursView(LoginRequiredMixin, FormView):
 #Display the menu allowing user to view their hours based on selected filter, after they successfully login.
 class ViewOwnHoursView(LoginRequiredMixin, View):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     def get(self, request):
         return render(request, 'view_own_hours.html')
 
 #Display all hours added by a logged in user.
 class ListAllHoursView(LoginRequiredMixin, ListView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     model = LoggedHours
     success_url = '/list_all_hours/'
     template_name = 'list_hours.html'
@@ -159,7 +154,6 @@ class ListAllHoursView(LoginRequiredMixin, ListView):
 #Display the data on the graph presenting, include the division by sales channel.
 class HoursThisWeekView(LoginRequiredMixin, ListView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     model = LoggedHours
     success_url = 'hours-this-week'
     template_name = 'list_hours.html'
@@ -193,7 +187,6 @@ class HoursThisWeekView(LoginRequiredMixin, ListView):
 #Display the data on the graph presenting, include the division by sales channel.
 class HoursThisMonthView(LoginRequiredMixin, ListView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     model = LoggedHours
     success_url = 'hours-this-month'
     template_name = 'list_hours.html'
@@ -226,8 +219,6 @@ class HoursThisMonthView(LoginRequiredMixin, ListView):
 #Display the data on the graph presenting, include the division by sales channel.
 class HoursThisYearView(LoginRequiredMixin, ListView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
-
     model = LoggedHours
     success_url = 'hours-this-year'
     template_name = 'list_hours.html'
@@ -259,7 +250,6 @@ class HoursThisYearView(LoginRequiredMixin, ListView):
 #Allow access to view summaries hours per sales channel to logged in users with specified permissions.
 class HoursPerChannelView(LoginRequiredMixin, PermissionRequiredMixin, ListView, DateFilterView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     permission_required = ['timetracking_app.view_hours_per_channel']
 
     model = LoggedHours
@@ -345,7 +335,6 @@ class HoursPerChannelView(LoginRequiredMixin, PermissionRequiredMixin, ListView,
 #Display hours per department to logged in users, who have appropriate permissions
 class ViewDepartmentHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListView, DateFilterView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     permission_required = ['timetracking_app.view_hours_per_department']
 
     model = LoggedHours
@@ -415,7 +404,6 @@ class ViewDepartmentHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListV
 #Display list of hours added by all employees to loggedin users with specified permissions.
 class ViewEmployeesHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListView, DateFilterView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     permission_required = ['timetracking_app.view_hours_per_employee']
 
     model = LoggedHours
@@ -465,7 +453,6 @@ class ViewEmployeesHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListVi
 #Add new employee form, visible to logged in users, who have appropriate permissions
 class AddEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     permission_required = 'timetracking_app.add_person'
 
     #define the form
@@ -486,7 +473,6 @@ class AddEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 #delete hours view (for logged in users with permissions)
 class DeleteHoursView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     permission_required = 'timetracking_app.delete_hours'
 
     model = LoggedHours
@@ -497,8 +483,6 @@ class DeleteHoursView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 #Edit own hours
 class EditHoursView(LoginRequiredMixin, UpdateView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
-
     model = LoggedHours
     fields = ['date', 'hour', 'sales_channel', 'department']
     template_name = 'loggedhours_update_form.html'
@@ -508,7 +492,6 @@ class EditHoursView(LoginRequiredMixin, UpdateView):
 #Edit employee form
 class EditEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     permission_required = 'timetracking_app.edit_employee'
 
     model = Person
@@ -520,7 +503,6 @@ class EditEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 #List all employees added to the db (for logged in users with specified permissions)
 class ListEmployeesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     permission_required = 'timetracking_app.view_person'
 
     model = Person
@@ -532,7 +514,6 @@ class ListEmployeesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 #Deactivate the employee (for logged in users with specified permissions)
 class DeactivateEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/login/'
-    redirect_field_name = 'redirect_to'
     permission_required = 'timetracking_app.delete_person'
 
     model = Person
