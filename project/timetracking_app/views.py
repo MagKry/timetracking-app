@@ -32,16 +32,6 @@ from .models import LoggedHours, SalesChannel, Person, Department
 #Create a parent class with methods that will be reused in the code.
 class DateFilterView(View):
 
-    def get_queryset(self):
-        user = self.request.user
-        # restricting data visibility - managers can view their departments only, director can view all departments
-        if user.groups.filter(name='director_user').exists():
-            queryset = LoggedHours.objects.all()
-            return queryset
-        elif user.groups.filter(name='manager_user').exists():
-            queryset = LoggedHours.objects.filter(department=user.department)
-            return queryset
-
 #Setting up query strings to be used for filtering data
     def set_up_query_strings(self, *args, **kwargs):
         query_params = QueryDict(mutable=True)
@@ -113,7 +103,7 @@ class AddHoursView(LoginRequiredMixin, FormView):
     login_url = '/login/'
     template_name = 'add_hours.html'
     form_class = AddHoursForm
-    success_url = reverse_lazy('view-hours')
+    success_url = reverse_lazy('list-all-hours')
 
 
     def form_valid(self, form):
@@ -135,14 +125,9 @@ class AddHoursView(LoginRequiredMixin, FormView):
 
         return super().form_valid(form)
 
-#Display the menu allowing user to view their hours based on selected filter, after they successfully login.
-class ViewOwnHoursView(LoginRequiredMixin, View):
-    login_url = '/login/'
-    def get(self, request):
-        return render(request, 'view_own_hours.html')
 
 #Display all hours added by a logged in user.
-class ListAllHoursView(LoginRequiredMixin, ListView):
+class ListAllHoursView(LoginRequiredMixin, ListView, DateFilterView):
     login_url = '/login/'
     model = LoggedHours
     success_url = '/list_all_hours/'
@@ -152,107 +137,45 @@ class ListAllHoursView(LoginRequiredMixin, ListView):
     ordering = ['sales_channel']
 
     def get_queryset(self):
-        return LoggedHours.objects.filter(employee=self.request.user)
+        user = self.request.user
+        queryset = LoggedHours.objects.filter(employee=user)
+        queryset = self.filter_by_dates_range(queryset)
+        return queryset
 
+    # filter data dependent on dates range
+    def filter_by_dates_range(self, queryset):
+        filter_type = self.request.GET.get('filter_type')
+        if filter_type == 'weekly':
+            start_date = timezone.now() - timezone.timedelta(days=7)
+        elif filter_type == 'monthly':
+            start_date = timezone.now() - timezone.timedelta(days=30)
+        elif filter_type == 'yearly':
+            start_date = timezone.now() - timezone.timedelta(days=365)
+        else:
+            # Default: no filtering
+            return queryset
 
-#Display list of all hours added by a logged in user in the current week.
-#Display the data on the graph presenting, include the division by sales channel.
-class HoursThisWeekView(LoginRequiredMixin, ListView):
-    login_url = '/login/'
-    model = LoggedHours
-    success_url = 'hours-this-week'
-    template_name = 'list_hours.html'
-    context_object_name = 'employee_entries'
-    paginate_by = 10
-    ordering = ['-date']
+        return queryset.filter(date__gte=start_date)
 
-    #filter queryset to get current week data
-    def get_queryset(self):
-        start_date = timezone.now()
-        end_date = start_date + timedelta(days=6)
-        return LoggedHours.objects.filter(employee=self.request.user, date__gte=start_date, date__lte=end_date)
-
-    #modify context data to get summary of hours added to selected sales channels
+    # summarize data per channel and dates range selected by user
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        employee_entries = self.get_queryset()
+        filter_type = self.request.GET.get('filter_type')
+        # apply filter by date
+        context['filter_type'] = filter_type
+        # get queryset
+        all_entries = self.get_queryset()
 
-        hours_per_channel = {}
-        for entry in employee_entries:
-            sales_channel = entry.sales_channel
-            hours = entry.hour
-            if sales_channel in hours_per_channel:
-                hours_per_channel[sales_channel] += hours
-            else:
-                hours_per_channel[sales_channel] = hours
-        context['hours_per_channel'] = hours_per_channel
-        return context
 
-#Display list of all hours added by a logged in user in the current month.
-#Display the data on the graph presenting, include the division by sales channel.
-class HoursThisMonthView(LoginRequiredMixin, ListView):
-    login_url = '/login/'
-    model = LoggedHours
-    success_url = 'hours-this-month'
-    template_name = 'list_hours.html'
-    context_object_name = 'employee_entries'
-    paginate_by = 10
-    ordering = ['-date']
+        # get context data to the filtering buttons
+        context['weekly'] = self.set_up_query_strings('weekly')
+        context['monthly_url'] = self.set_up_query_strings('monthly')
+        context['yearly_url'] = self.set_up_query_strings('yearly')
 
-    #filter queryset to get current month data
-    def get_queryset(self):
-        current_month = timezone.now().replace(day=1).strftime('%Y-%m-%d')
-        return LoggedHours.objects.filter(employee=self.request.user, date__gte=current_month)
-
-    #modify context data to get summary of hours added to selected sales channels
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        employee_entries = self.get_queryset()
-        hours_per_channel = {}
-        for entry in employee_entries:
-            sales_channel = entry.sales_channel
-            hours = entry.hour
-            if sales_channel in hours_per_channel:
-                hours_per_channel[sales_channel] += hours
-            else:
-                hours_per_channel[sales_channel] = hours
-        context['hours_per_channel'] = hours_per_channel
         return context
 
 
-#Display list of all hours added by a logged in user in the current year.
-#Display the data on the graph presenting, include the division by sales channel.
-class HoursThisYearView(LoginRequiredMixin, ListView):
-    login_url = '/login/'
-    model = LoggedHours
-    success_url = 'hours-this-year'
-    template_name = 'list_hours.html'
-    context_object_name = 'employee_entries'
-    paginate_by = 10
-    ordering = ['-date']
-
-    #filter queryset to get current year data
-    def get_queryset(self):
-        current_year = timezone.now().replace(day=1, month=1).strftime('%Y-%m-%d')
-        return LoggedHours.objects.filter(employee=self.request.user, date__gte=current_year)
-
-    #modify context data to get summary of hours added to selected sales channels
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        employee_entries = self.get_queryset()
-        hours_per_channel = {}
-        for entry in employee_entries:
-            sales_channel = entry.sales_channel
-            hours = entry.hour
-            if sales_channel in hours_per_channel:
-                hours_per_channel[sales_channel] += hours
-            else:
-                hours_per_channel[sales_channel] = hours
-        context['hours_per_channel'] = hours_per_channel
-        return context
-
-
-#Allow access to view summaries hours per sales channel to logged in users with specified permissions.
+#Allow access to view summarised hours per sales channel to logged in users with specified permissions.
 class HoursPerChannelView(LoginRequiredMixin, PermissionRequiredMixin, ListView, DateFilterView):
     login_url = '/login/'
     permission_required = ['timetracking_app.view_hours_per_channel']
