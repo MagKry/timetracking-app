@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %} Employee {% endblock %}
+{% block content %}
+
+{# <table border="1">#}
+{#        <tr>#}
+{#            <th>Id</th>#}
+{#            <th>Username</th>#}
+{#            <th>First name </th>#}
+{#            <th>Last name </th>#}
+{#            <th>Department </th>#}
+{##}
+{#        </tr>#}
+{##}
+{#                <tr>#}
+{#                    {% for employee in employees %}#}
+{#                    {% if employee.is_active %}#}
+{#                    <td >{{ employee.id }}</td>#}
+{#                    <td>{{ employee.username }}</td>#}
+{#                    <td>{{ employee.first_name }}</td>#}
+{#                    <td>{{ employee.last_name }}</td>#}
+{#                    <td>{{ employee.department }}</td>#}
+{#                </tr>#}
+{#                    {% endif %}#}
+{#                    {% endfor %}#}
+{#    </table>#}
+
+{% if employees %}
+
+{% for employee in employees %}
+    {% if employee.is_active %}
+<li> Id: {{ employee.id  }}<br> Email: {{ employee.email }}<br> Name: {{ employee.first_name }}<br> Surname: {{ employee.last_name }}<br>
+    Department: {{ employee.department }} <br>
+    {% if perms.timetracking_app.change_person %}
+    <a href="{% url 'edit-employee' pk=employee.id %}"> <button type="submit" value="update_person">Edit</button> </a></td>
+        {% endif %}
+    {% if perms.timetracking_app.delete_person %}
+    <a href="{% url 'deactivate-employee' pk=employee.id %}"> <button type="submit" value="delete_person">Deactivate</button> </a></td>
+        {% endif %}
+
+</li>
+    {% endif %}
+{% endfor %}
+
+{% else %}
+        There are no users matching your search criteria.
+{% endif %}
+
+
+
+
+{% endblock %}
+
+{% block footer %} {% endblock %}

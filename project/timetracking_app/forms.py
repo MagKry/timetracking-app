@@ -46,3 +46,11 @@ class ResetPasswordForm(forms.Form):
     new_password = forms.CharField(label='New password', widget=forms.PasswordInput)
     confirm_password = forms.CharField(label='Confirm new password', widget=forms.PasswordInput)
 
+
+class SearchEmployeeForm(forms.Form):
+    email = forms.EmailField(label='Email', required=False)
+    first_name = forms.CharField(label='First name', required=False)
+    last_name = forms.CharField(label='Last name', required=False)
+    department = forms.CharField(label='Department', required=False)
+
+

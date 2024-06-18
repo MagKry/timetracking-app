@@ -20,7 +20,7 @@ from django.contrib.auth import views as auth_views
 from .views import (HomePageView, LoginView, AddHoursView, ViewDepartmentHoursView,
                     ViewEmployeesHoursView, AddEmployeeView, LogoutView, ListAllHoursView, HoursPerChannelView,
                     DeleteHoursView, EditHoursView, EditEmployeeView,
-                    ListEmployeesView, DeactivateEmployeeView, ResetPasswordView)
+                    ListEmployeesView, DeactivateEmployeeView, ResetPasswordView, SearchEmployeeView)
 
 urlpatterns = [
     path('home/', HomePageView.as_view(), name='home-page'),
@@ -36,9 +36,12 @@ urlpatterns = [
     path('edit_hours/<int:pk>/', EditHoursView.as_view(), name='edit-hours'),
     path('edit_employee/<int:pk>/', EditEmployeeView.as_view(), name='edit-employee'),
     path('list_employees/', ListEmployeesView.as_view(), name='list-employees'),
-    path('deactivate_employee/<int:pk>', DeactivateEmployeeView.as_view(), name='deactivate-employee'),
+    path('deactivate_employee/<int:pk>/', DeactivateEmployeeView.as_view(), name='deactivate-employee'),
     path('reset_password/', auth_views.PasswordResetView.as_view(template_name='password_reset_form.html'), name='password_reset'),
     path('reset_password_sent/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'), name='password_reset_complete'),
+    path('search_employee/', SearchEmployeeView.as_view(), name='search-employee'),
+    # path('employee_details/<int:pk>/', EmployeeDetailView.as_view(), name='employee-detail'),
+
 ]
