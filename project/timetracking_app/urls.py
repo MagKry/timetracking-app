@@ -44,4 +44,5 @@ urlpatterns = [
     path('search_employee/', SearchEmployeeView.as_view(), name='search-employee'),
     # path('employee_details/<int:pk>/', EmployeeDetailView.as_view(), name='employee-detail'),
     path('change_password/', auth_views.PasswordChangeView.as_view(template_name='change_password.html'), name='change-password'),
+
 ]

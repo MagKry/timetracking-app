@@ -7,7 +7,7 @@
 <ol>
 {% for employee in employee_entries %}
     {% if employee.is_active %}
-<li> {{ employee.username }}
+<li> {{ employee.id }}{{ employee.username }}
     {% if perms.timetracking_app.change_person %}
     <a href="{% url 'edit-employee' pk=employee.id %}"> <button type="submit" value="update_person">Edit</button> </a></td>
         {% endif %}
