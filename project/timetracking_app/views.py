@@ -20,12 +20,12 @@ from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
-from django.views.generic import FormView, ListView, DeleteView, UpdateView, CreateView
+from django.views.generic import FormView, ListView, DeleteView, UpdateView, CreateView, DetailView
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from django.conf import settings
 
-from .forms import AddHoursForm, LoginForm, ResetPasswordForm
+from .forms import AddHoursForm, LoginForm, ResetPasswordForm, SearchEmployeeForm
 from .models import LoggedHours, SalesChannel, Person, Department
 
 
@@ -437,6 +437,32 @@ class ListEmployeesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     success_url = reverse_lazy('list-all-people')
     template_name ='list_people.html'
     context_object_name = 'employee_entries'
+
+
+class SearchEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    login_url = '/login/'
+    permission_required = 'timetracking_app.view_person'
+    form_class = SearchEmployeeForm
+    template_name = 'search_employee.html'
+    success_url = reverse_lazy('employee-detail')
+
+    def form_valid(self, form):
+        form = form
+        email = form.cleaned_data.get('email')
+        first_name = form.cleaned_data.get('first_name')
+        last_name = form.cleaned_data.get('last_name')
+        department = form.cleaned_data.get('department')
+        employees = Person.objects.all()
+        if email:
+            employees = employees.filter(email=email)
+        if first_name:
+            employees = employees.filter(first_name__icontains=first_name)
+        if last_name:
+            employees = employees.filter(last_name__icontains=last_name)
+        if department:
+            employees = employees.filter(department__department_name__icontains=department)
+
+        return render(self.request, 'employee_detail.html', {'employees': employees})
 
 
 #Deactivate the employee (for logged in users with specified permissions)
