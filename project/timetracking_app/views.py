@@ -512,9 +512,14 @@ class ResetPasswordView(FormView):
 
 class PasswordChangeView(LoginRequiredMixin, FormView):
     login_url = '/login/'
-    template_name = 'change_password.html'
+    template_name = 'password_change.html'
     model = Person
     context_object_name = 'user'
     form_class = ResetPasswordForm
     success_url = reverse_lazy('home-page')
+
+
+class PasswordChangeDoneView(LoginRequiredMixin, View):
+    login_url = '/login/'
+    template_name = 'password_change_done.html'
 

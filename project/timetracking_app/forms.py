@@ -54,3 +54,9 @@ class SearchEmployeeForm(forms.Form):
     department = forms.CharField(label='Department', required=False)
 
 
+class ChangePasswordForm(forms.Form):
+    old_password = forms.CharField(label='Old password', widget=forms.PasswordInput)
+    new_password = forms.CharField(label='New password', widget=forms.PasswordInput)
+    confirm_password = forms.CharField(label='Confirm new password', widget=forms.PasswordInput)
+
+
