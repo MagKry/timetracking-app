@@ -481,6 +481,14 @@ class ResetPasswordView(FormView):
         })
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
-        user.is_active = True  # Aktywacja użytkownika po wysłaniu e-maila
+        user.is_active = True
         user.save()
+
+class PasswordChangeView(LoginRequiredMixin, FormView):
+    login_url = '/login/'
+    template_name = 'change_password.html'
+    model = Person
+    context_object_name = 'user'
+    form_class = ResetPasswordForm
+    success_url = reverse_lazy('home-page')
 
