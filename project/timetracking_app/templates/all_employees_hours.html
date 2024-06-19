@@ -2,6 +2,7 @@
 {% block title %} All employees hours{% endblock %}
 {% block content %}
 
+
 {% if perms.timetracking_app.view_hours_per_channel %}
     <table>
         <tr>
@@ -29,9 +30,26 @@
 
         </tr>
 {% endfor %}
-
+<br>
         </table>
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
 
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+<br>
    <table border="1">
       {% for employee, hours in hours_per_employee.items %}
           <tr>
@@ -45,6 +63,9 @@
 </table>
     {% else %} You don't have permissions to view this site.
     {% endif %}
+
+
+
 
 {% endblock %}
 
