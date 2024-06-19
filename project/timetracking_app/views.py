@@ -340,6 +340,7 @@ class ViewEmployeesHoursView(LoginRequiredMixin, PermissionRequiredMixin, ListVi
     success_url = 'employees_hours/'
     context_object_name = 'employee_entries'
     ordering = ['employee']
+    paginate_by = 10
 
     def get_queryset(self):
         user = self.request.user
@@ -428,17 +429,6 @@ class EditEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     success_url = reverse_lazy('employees-hours')
 
 
-#List all employees added to the db (for logged in users with specified permissions)
-class ListEmployeesView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    login_url = '/login/'
-    permission_required = 'timetracking_app.view_person'
-
-    model = Person
-    success_url = reverse_lazy('list-all-people')
-    template_name ='list_people.html'
-    context_object_name = 'employee_entries'
-
-
 class SearchEmployeeView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     login_url = '/login/'
     permission_required = 'timetracking_app.view_person'
@@ -522,4 +512,24 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
 class PasswordChangeDoneView(LoginRequiredMixin, View):
     login_url = '/login/'
     template_name = 'password_change_done.html'
+
+
+class EmployeeDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    login_url = '/login/'
+    model = Person
+    permission_required = 'timetracking_app.change_person'
+    template_name = 'employee_full_details.html'
+    context_object_name = 'employee'
+
+
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        return get_object_or_404(Person, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Filter logged hours by employee id
+        context['employee_entries'] = LoggedHours.objects.filter(employee=self.get_object())
+        return context
+
 

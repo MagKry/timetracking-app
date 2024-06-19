@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} Employee {% endblock %}
+{% block title %} Employee hours {% endblock %}
 {% block content %}
 
 {# <table border="1">#}
@@ -26,23 +26,25 @@
 {#                    {% endfor %}#}
 {#    </table>#}
 
-{% if employees %}
+{% if employee %}
 
-{% for employee in employees %}
     {% if employee.is_active %}
-<li> Id: {{ employee.id  }}<br> Email: {{ employee.email }}<br> Name: {{ employee.first_name }}<br> Surname: {{ employee.last_name }}<br>
-    Department: {{ employee.department }} <br>
-    {% if perms.timetracking_app.change_person %}
-    <a href="{% url 'edit-employee' pk=employee.id %}"> <button type="submit" value="update_person">Edit</button> </a></td>
-    <a href="{% url 'employee-detail' pk=employee.id %}"> <button type="submit" value="view_person">View</button> </a></td>
-    {% endif %}
-    {% if perms.timetracking_app.delete_person %}
-    <a href="{% url 'deactivate-employee' pk=employee.id %}"> <button type="submit" value="delete_person">Deactivate</button> </a></td>
-        {% endif %}
+<li> Id: {{ employee.id  }}<br>
+    Email: {{ employee.email }}<br>
 
-</li>
+    Active: {{ employee.is_active}} <br>
+    Staff: {{ employee.is_staff }} <br>
+    Hours:
+    {% for entry in employee_entries %}
+        <li>{{ entry.date }} - {{ entry.department }} - {{ entry.sales_channel }} - {{ entry.hour }} hour(s) </li>
+
+    {% empty %}
+        No logged hours found.
+    {% endfor %}
+
+
+
     {% endif %}
-{% endfor %}
 
 {% else %}
         There are no users matching your search criteria.
