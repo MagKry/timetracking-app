@@ -5,6 +5,7 @@ Django==5.0.3
 django-chartjs==2.3.0
 django-extensions==3.2.3
 exceptiongroup==1.2.0
+gunicorn
 idna==3.7
 iniconfig==2.0.0
 mailchimp-transactional==1.0.56
