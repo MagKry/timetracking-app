@@ -1,1 +1,3 @@
-web: gunicorn timetracking_app.wsgi --log-file -
+web: gunicorn project.wsgi.application
+python manage.py collectstatic --noinput
+manage.py migrate
